@@ -1,7 +1,34 @@
 import './App.css'
-import { useState, useRef, useEffect } from 'react'
-import { getAllCities, getLanguageForCity } from './data/cityLanguageMap'
+import { useState, useEffect } from 'react'
 import { submitCampaign } from './services/api'
+
+// Landing Components
+import HeroSection from './components/Landing/HeroSection'
+import FeatureStrip from './components/Landing/FeatureStrip'
+
+// Form Components
+import ProductInput from './components/Form/ProductInput'
+import CategorySelect from './components/Form/CategorySelect'
+import BusinessTypeCards from './components/Form/BusinessTypeCards'
+import CitySelector from './components/Form/CitySelector'
+import LanguageSelector from './components/Form/LanguageSelector'
+import OfferInput from './components/Form/OfferInput'
+import PlatformSelector from './components/Form/PlatformSelector'
+
+// Loader Component
+import GenerationLoader from './components/Loader/GenerationLoader'
+
+// Output Components
+import OutputTabs from './components/Output/OutputTabs'
+import PosterOutput from './components/Output/PosterOutput'
+import InstagramOutput from './components/Output/InstagramOutput'
+import WhatsAppOutput from './components/Output/WhatsAppOutput'
+import VoiceAdOutput from './components/Output/VoiceAdOutput'
+
+// Common Components
+import PrimaryButton from './components/Common/PrimaryButton'
+import SectionContainer from './components/Common/SectionContainer'
+import CopyButton from './components/Common/CopyButton'
 
 function App() {
   const [productName, setProductName] = useState('')
@@ -9,55 +36,21 @@ function App() {
   const [businessType, setBusinessType] = useState('retail')
   const [selectedCity, setSelectedCity] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState('')
-  const [citySearchQuery, setCitySearchQuery] = useState('')
-  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
   const [offer, setOffer] = useState('')
+  const [selectedPlatforms, setSelectedPlatforms] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [activeTab, setActiveTab] = useState(0)
+  const [outputTab, setOutputTab] = useState(0) // For output tabs (Poster, Instagram, etc.)
   const [showResults, setShowResults] = useState(false)
-  const [copiedText, setCopiedText] = useState('')
   const [apiResponse, setApiResponse] = useState(null)
-  const cityDropdownRef = useRef(null)
 
   const loadingSteps = [
-    { text: 'Analyzing your product details...', duration: 2000 },
-    { text: 'Optimizing for local audience...', duration: 2000 },
-    { text: 'Generating ad content...', duration: 2500 },
-    { text: 'Finalizing your campaign...', duration: 1500 },
+    { text: 'Product samajh rahe hain', duration: 2000 },
+    { text: 'Sheher ke trends dekh rahe hain', duration: 2000 },
+    { text: 'Local bhasha mein likh rahe hain', duration: 2500 },
+    { text: 'Ad tayar kar rahe hain', duration: 1500 },
   ]
-
-  const allCities = getAllCities()
-  const filteredCities = citySearchQuery
-    ? allCities.filter((city) =>
-        city.toLowerCase().includes(citySearchQuery.toLowerCase())
-      )
-    : allCities
-
-  const handleCitySelect = (city) => {
-    setSelectedCity(city)
-    const language = getLanguageForCity(city)
-    setSelectedLanguage(language)
-    setCitySearchQuery('')
-    setIsCityDropdownOpen(false)
-  }
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        cityDropdownRef.current &&
-        !cityDropdownRef.current.contains(event.target)
-      ) {
-        setIsCityDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   // Validate required fields
   const isFormValid = () => {
@@ -66,32 +59,6 @@ function App() {
       selectedCity !== '' &&
       productCategory !== ''
     )
-  }
-
-  // Copy to clipboard function
-  const copyToClipboard = async (text, label = '') => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'Text')
-      setTimeout(() => setCopiedText(''), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea')
-      textArea.value = text
-      textArea.style.position = 'fixed'
-      textArea.style.opacity = '0'
-      document.body.appendChild(textArea)
-      textArea.select()
-      try {
-        document.execCommand('copy')
-        setCopiedText(label || 'Text')
-        setTimeout(() => setCopiedText(''), 2000)
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr)
-      }
-      document.body.removeChild(textArea)
-    }
   }
 
   // Generate formatted form summary
@@ -174,467 +141,145 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
     }
   }
 
+  // Prepare output data from API response
+  const getOutputData = () => {
+    if (!apiResponse?.data?.adContent) return null
+
+    const adContent = apiResponse.data.adContent
+    const product = apiResponse.data.product
+    const business = apiResponse.data.business
+
+    return {
+      poster: {
+        headline: adContent.headline,
+        description: adContent.description,
+        offer: offer || adContent.callToAction,
+      },
+      instagram: {
+        caption: `${adContent.headline}\n\n${adContent.description}${offer ? `\n\n${offer}` : ''}`,
+        hashtags: [
+          product.name.toLowerCase().replace(/\s+/g, ''),
+          selectedCity.toLowerCase(),
+          productCategory,
+          'hyperlocal',
+          'localbusiness',
+          'shoplocal',
+        ],
+      },
+      whatsapp: {
+        message: `*${adContent.headline}*\n\n${adContent.description}${offer ? `\n\n🎉 ${offer}` : ''}\n\n📍 ${selectedCity}`,
+        businessName: product.name,
+      },
+      voice: {
+        script: `${adContent.headline}. ${adContent.description}${offer ? ` Special offer: ${offer}` : ''}. Visit us in ${selectedCity}.`,
+        duration: Math.ceil(
+          (`${adContent.headline}. ${adContent.description}${offer ? ` Special offer: ${offer}` : ''}. Visit us in ${selectedCity}.`.length / 10)
+        ),
+        language: selectedLanguage,
+      },
+    }
+  }
+
+  const outputData = getOutputData()
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-12 md:py-20">
-        {/* Headline */}
-        <div className="text-center mb-12 md:mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-            Grow Your Business with
-            <span className="block text-indigo-600 mt-2">Hyperlocal Advertising</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mt-6">
-            Reach customers in your neighborhood and boost sales with targeted local ads
-          </p>
-        </div>
+      <HeroSection
+        headline="Apni Dukaan Ko Digital Banao"
+        subheadline="Local customers ko reach karein, sales badhayen"
+        ctaText="Shuru Karein"
+        onCtaClick={() => {
+          document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' })
+        }}
+      />
 
-        {/* 3-Step Visual Flow */}
-        <div className="max-w-4xl mx-auto mb-12 md:mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
-            {/* Step 1 */}
-            <div className="flex flex-col items-center text-center">
-              <div className="relative mb-6">
-                <div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-indigo-600 rounded-full flex items-center justify-center">
-                    <span className="text-2xl md:text-3xl font-bold text-white">1</span>
-                  </div>
-                </div>
-                <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-indigo-200 transform -translate-y-1/2"></div>
-              </div>
-              <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
-                Set Your Location
-              </h3>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                Choose your business area and define your target neighborhood radius
-              </p>
-            </div>
+      {/* Feature Strip */}
+      <FeatureStrip />
 
-            {/* Step 2 */}
-            <div className="flex flex-col items-center text-center">
-              <div className="relative mb-6">
-                <div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-indigo-600 rounded-full flex items-center justify-center">
-                    <span className="text-2xl md:text-3xl font-bold text-white">2</span>
-                  </div>
-                </div>
-                <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-indigo-200 transform -translate-y-1/2"></div>
-              </div>
-              <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
-                Create Your Ad
-              </h3>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                Design compelling ads with images, offers, and messages that resonate locally
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="flex flex-col items-center text-center">
-              <div className="relative mb-6">
-                <div className="w-20 h-20 md:w-24 md:h-24 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-indigo-600 rounded-full flex items-center justify-center">
-                    <span className="text-2xl md:text-3xl font-bold text-white">3</span>
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
-                Reach Customers
-              </h3>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                Your ads appear to nearby customers, driving foot traffic and online sales
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Details Form */}
+      {/* Product Details Form */}
+      <div id="form-section" className="container mx-auto px-4 py-12 md:py-16">
         <div className="max-w-3xl mx-auto mb-12 md:mb-16">
-          <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl p-6 md:p-8 border border-indigo-50">
+          <SectionContainer>
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">
               Tell us about your product
             </h2>
             <p className="text-gray-600 mb-6">
-              We’ll use this to tailor hyperlocal campaigns for your MSME.
+              We'll use this to tailor hyperlocal campaigns for your MSME.
             </p>
 
             <div className="space-y-6">
               {/* Product name input */}
-              <div>
-                <label
-                  htmlFor="product-name"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Product name
-                </label>
-                <input
-                  id="product-name"
-                  type="text"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  placeholder="e.g. Premium South Indian Filter Coffee Pack"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm md:text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
+              <ProductInput
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+              />
+
+              {/* City selector */}
+              <CitySelector
+                value={selectedCity}
+                onChange={setSelectedCity}
+                onLanguageChange={setSelectedLanguage}
+              />
+
+              {/* Language selector */}
+              {selectedCity && (
+                <LanguageSelector
+                  value={selectedLanguage}
+                  onChange={setSelectedLanguage}
+                  autoDetectedLanguage={selectedLanguage}
                 />
-              </div>
-
-              {/* City searchable dropdown */}
-              <div className="relative" ref={cityDropdownRef}>
-                <label
-                  htmlFor="city-search"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  City
-                </label>
-                <div className="relative">
-                  <input
-                    id="city-search"
-                    type="text"
-                    value={citySearchQuery || selectedCity}
-                    onChange={(e) => {
-                      setCitySearchQuery(e.target.value)
-                      setIsCityDropdownOpen(true)
-                      if (selectedCity && e.target.value !== selectedCity) {
-                        setSelectedCity('')
-                        setSelectedLanguage('')
-                      }
-                    }}
-                    onFocus={() => setIsCityDropdownOpen(true)}
-                    placeholder="Search for your city..."
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm md:text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
-                  />
-                  <svg
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-
-                {/* Language display */}
-                {selectedLanguage && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Language:</span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                      {selectedLanguage}
-                    </span>
-                  </div>
-                )}
-
-                {/* Dropdown list */}
-                {isCityDropdownOpen && filteredCities.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                    {filteredCities.map((city) => {
-                      const cityLanguage = getLanguageForCity(city)
-                      return (
-                        <button
-                          key={city}
-                          type="button"
-                          onClick={() => handleCitySelect(city)}
-                          className="w-full text-left px-4 py-3 hover:bg-indigo-50 transition-colors border-b border-gray-100 last:border-b-0"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm md:text-base text-gray-900 font-medium">
-                              {city}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {cityLanguage}
-                            </span>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-
-                {/* No results message */}
-                {isCityDropdownOpen &&
-                  citySearchQuery &&
-                  filteredCities.length === 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-                      <p className="text-sm text-gray-500 text-center">
-                        No cities found matching "{citySearchQuery}"
-                      </p>
-                    </div>
-                  )}
-              </div>
+              )}
 
               {/* Product category dropdown */}
-              <div>
-                <label
-                  htmlFor="product-category"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Product category
-                </label>
-                <select
-                  id="product-category"
-                  value={productCategory}
-                  onChange={(e) => setProductCategory(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm md:text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
-                >
-                  <option value="">Select a category</option>
-                  <option value="food-beverage">Food &amp; Beverages</option>
-                  <option value="fashion">Fashion &amp; Accessories</option>
-                  <option value="services">Local Services</option>
-                  <option value="health-beauty">Health &amp; Beauty</option>
-                  <option value="electronics">Electronics &amp; Gadgets</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+              <CategorySelect
+                value={productCategory}
+                onChange={(e) => setProductCategory(e.target.value)}
+              />
 
               {/* Offer input */}
-              <div>
-                <label
-                  htmlFor="offer"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Special offer
-                </label>
-                <input
-                  id="offer"
-                  type="text"
-                  value={offer}
-                  onChange={(e) => setOffer(e.target.value)}
-                  placeholder="e.g. 20% off on all items, Buy 2 Get 1 Free, Flat ₹500 off above ₹2000, Festival Special: 30% discount, Free delivery within 5km"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm md:text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
-                  maxLength={150}
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  {offer.length}/150 characters
-                </p>
-              </div>
+              <OfferInput
+                value={offer}
+                onChange={(e) => setOffer(e.target.value)}
+              />
 
               {/* Business type card selector */}
-              <div>
-                <p className="block text-sm font-medium text-gray-700 mb-3">
-                  Business type
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[
-                    {
-                      id: 'retail',
-                      label: 'Retail store',
-                      description: 'Physical shop attracting walk-in customers.',
-                    },
-                    {
-                      id: 'online',
-                      label: 'Online only',
-                      description: 'Sell via website, app, or marketplaces.',
-                    },
-                    {
-                      id: 'hybrid',
-                      label: 'Online + store',
-                      description: 'Combine online orders with in-store sales.',
-                    },
-                  ].map((type) => {
-                    const isActive = businessType === type.id
-                    return (
-                      <button
-                        key={type.id}
-                        type="button"
-                        onClick={() => setBusinessType(type.id)}
-                        className={[
-                          'text-left rounded-xl border px-4 py-4 text-sm md:text-base transition shadow-sm',
-                          'focus:outline-none focus:ring-2 focus:ring-indigo-200',
-                          isActive
-                            ? 'border-indigo-500 bg-indigo-50 text-indigo-900'
-                            : 'border-gray-200 bg-white text-gray-900 hover:border-indigo-200 hover:bg-indigo-50/60',
-                        ].join(' ')}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold">{type.label}</span>
-                          <span
-                            className={[
-                              'inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-medium',
-                              isActive
-                                ? 'border-indigo-500 bg-indigo-600 text-white'
-                                : 'border-gray-300 bg-white text-gray-400',
-                            ].join(' ')}
-                            aria-hidden="true"
-                          >
-                            {isActive ? '✓' : ''}
-                          </span>
-                        </div>
-                        <p className="text-xs md:text-sm text-gray-600">
-                          {type.description}
-                        </p>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
+              <BusinessTypeCards
+                value={businessType}
+                onChange={setBusinessType}
+              />
+
+              {/* Platform selector */}
+              <PlatformSelector
+                selectedPlatforms={selectedPlatforms}
+                onChange={setSelectedPlatforms}
+              />
             </div>
-          </div>
+          </SectionContainer>
         </div>
 
         {/* Loading Animation */}
         {isLoading && (
-          <div className="max-w-2xl mx-auto mb-12 md:mb-16">
-            <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-8 md:p-12 border border-indigo-100">
-              <div className="space-y-8">
-                {/* Progress Steps */}
-                <div className="space-y-6">
-                  {loadingSteps.map((step, index) => {
-                    const isActive = index === currentStep
-                    const isCompleted = index < currentStep
-                    return (
-                      <div
-                        key={index}
-                        className={`flex items-start gap-4 transition-all duration-500 ${
-                          isActive ? 'opacity-100' : 'opacity-50'
-                        }`}
-                      >
-                        {/* Step Indicator */}
-                        <div className="shrink-0 mt-1">
-                          <div
-                            className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
-                              isCompleted
-                                ? 'bg-indigo-600 border-indigo-600'
-                                : isActive
-                                  ? 'bg-indigo-100 border-indigo-600 animate-pulse'
-                                  : 'bg-white border-gray-300'
-                            }`}
-                          >
-                            {isCompleted ? (
-                              <svg
-                                className="w-6 h-6 md:w-7 md:h-7 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={3}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            ) : (
-                              <span
-                                className={`text-sm md:text-base font-semibold ${
-                                  isActive
-                                    ? 'text-indigo-600'
-                                    : 'text-gray-400'
-                                }`}
-                              >
-                                {index + 1}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Step Text */}
-                        <div className="flex-1 pt-2">
-                          <p
-                            className={`text-base md:text-lg font-medium transition-all duration-500 ${
-                              isActive
-                                ? 'text-gray-900'
-                                : isCompleted
-                                  ? 'text-gray-700'
-                                  : 'text-gray-400'
-                            }`}
-                          >
-                            {step.text}
-                          </p>
-                        </div>
-
-                        {/* Animated Dot */}
-                        {isActive && (
-                          <div className="shrink-0 pt-2">
-                            <div className="flex gap-1">
-                              <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"></div>
-                              <div
-                                className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"
-                                style={{ animationDelay: '0.1s' }}
-                              ></div>
-                              <div
-                                className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"
-                                style={{ animationDelay: '0.2s' }}
-                              ></div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {/* Progress Bar */}
-                <div className="pt-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-indigo-600 h-2 rounded-full transition-all duration-500 ease-out"
-                      style={{
-                        width: `${
-                          ((currentStep + 1) / loadingSteps.length) * 100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
-                    Step {currentStep + 1} of {loadingSteps.length}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GenerationLoader
+            currentStep={currentStep}
+            steps={loadingSteps}
+          />
         )}
 
         {/* Results Section */}
-        {showResults && (
-          <div className="max-w-3xl mx-auto mb-12 md:mb-16 animate-fade-in">
-            <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-6 md:p-8 border border-indigo-100">
+        {showResults && outputData && (
+          <div className="max-w-4xl mx-auto mb-12 md:mb-16 animate-fade-in">
+            <SectionContainer className="overflow-hidden">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Campaign Summary
+                  Your Ad Campaign
                 </h3>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => copyToClipboard(generateFormSummary(), 'Summary')}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {copiedText === 'Summary' ? (
-                      <>
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                          />
-                        </svg>
-                        Copy Summary
-                      </>
-                    )}
-                  </button>
+                  <CopyButton
+                    text={generateFormSummary()}
+                    label="Summary"
+                    variant="primary"
+                  />
                   <button
                     onClick={() => setShowResults(false)}
                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
@@ -643,178 +288,116 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                   </button>
                 </div>
               </div>
-              <div className="space-y-4">
-                {/* Form Summary */}
-                <div className="space-y-3 text-gray-700 whitespace-pre-line font-mono text-sm bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  {generateFormSummary()}
-                </div>
 
-                {/* API Response Data */}
-                {apiResponse && (
-                  <div className="mt-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <h4 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      Campaign Created Successfully
-                    </h4>
-                    <div className="space-y-2 text-sm">
-                      <p className="text-gray-700">
-                        <span className="font-medium">Campaign ID:</span>{' '}
-                        {apiResponse.data.campaign.id}
-                      </p>
-                      <p className="text-gray-700">
-                        <span className="font-medium">Status:</span>{' '}
-                        <span className="text-green-600 font-semibold capitalize">
-                          {apiResponse.data.campaign.status}
-                        </span>
-                      </p>
-                      {apiResponse.data.adContent && (
-                        <div className="mt-3 pt-3 border-t border-indigo-200">
-                          <p className="font-medium text-indigo-900 mb-2">
-                            Generated Ad Content:
-                          </p>
-                          <p className="text-gray-700 mb-1">
-                            <span className="font-medium">Headline:</span>{' '}
-                            {apiResponse.data.adContent.headline}
-                          </p>
-                          <p className="text-gray-700">
-                            <span className="font-medium">Description:</span>{' '}
-                            {apiResponse.data.adContent.description}
-                          </p>
-                        </div>
-                      )}
-                      {apiResponse.data.analytics && (
-                        <div className="mt-3 pt-3 border-t border-indigo-200">
-                          <p className="font-medium text-indigo-900 mb-2">
-                            Estimated Performance:
-                          </p>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                              <span className="text-gray-600">Reach:</span>{' '}
-                              <span className="font-semibold">
-                                {apiResponse.data.analytics.estimatedReach.toLocaleString()}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Impressions:</span>{' '}
-                              <span className="font-semibold">
-                                {apiResponse.data.analytics.estimatedImpressions.toLocaleString()}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Clicks:</span>{' '}
-                              <span className="font-semibold">
-                                {apiResponse.data.analytics.estimatedClicks.toLocaleString()}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Conversions:</span>{' '}
-                              <span className="font-semibold">
-                                {apiResponse.data.analytics.estimatedConversions.toLocaleString()}
-                              </span>
-                            </div>
+              {/* Output Tabs */}
+              <OutputTabs
+                activeTab={outputTab}
+                onTabChange={setOutputTab}
+                tabs={[
+                  { id: 0, label: 'Poster' },
+                  { id: 1, label: 'Instagram' },
+                  { id: 2, label: 'WhatsApp' },
+                  { id: 3, label: 'Voice' },
+                ]}
+              />
+
+              {/* Output Content */}
+              <div>
+                {outputTab === 0 && <PosterOutput data={outputData.poster} />}
+                {outputTab === 1 && <InstagramOutput data={outputData.instagram} />}
+                {outputTab === 2 && <WhatsAppOutput data={outputData.whatsapp} />}
+                {outputTab === 3 && <VoiceAdOutput data={outputData.voice} />}
+              </div>
+
+              {/* API Response Summary */}
+              {apiResponse && (
+                <div className="mt-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                  <h4 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Campaign Created Successfully
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-700">
+                      <span className="font-medium">Campaign ID:</span>{' '}
+                      {apiResponse.data.campaign.id}
+                    </p>
+                    <p className="text-gray-700">
+                      <span className="font-medium">Status:</span>{' '}
+                      <span className="text-green-600 font-semibold capitalize">
+                        {apiResponse.data.campaign.status}
+                      </span>
+                    </p>
+                    {apiResponse.data.analytics && (
+                      <div className="mt-3 pt-3 border-t border-indigo-200">
+                        <p className="font-medium text-indigo-900 mb-2">
+                          Estimated Performance:
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-gray-600">Reach:</span>{' '}
+                            <span className="font-semibold">
+                              {apiResponse.data.analytics.estimatedReach.toLocaleString()}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Impressions:</span>{' '}
+                            <span className="font-semibold">
+                              {apiResponse.data.analytics.estimatedImpressions.toLocaleString()}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Clicks:</span>{' '}
+                            <span className="font-semibold">
+                              {apiResponse.data.analytics.estimatedClicks.toLocaleString()}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Conversions:</span>{' '}
+                            <span className="font-semibold">
+                              {apiResponse.data.analytics.estimatedConversions.toLocaleString()}
+                            </span>
                           </div>
                         </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() =>
-                        copyToClipboard(JSON.stringify(apiResponse, null, 2), 'API Response')
-                      }
-                      className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      {copiedText === 'API Response' ? (
-                        <>
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          API Response Copied!
-                        </>
-                      ) : (
-                        <>
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                            />
-                          </svg>
-                          Copy API Response (JSON)
-                        </>
-                      )}
-                    </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Copy Success Toast */}
-        {copiedText && (
-          <div className="fixed bottom-4 right-4 bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 animate-fade-in">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span className="font-medium">{copiedText} copied to clipboard!</span>
+                  <CopyButton
+                    text={JSON.stringify(apiResponse, null, 2)}
+                    label="API Response"
+                    variant="primary"
+                    className="mt-4 w-full justify-center"
+                  />
+                </div>
+              )}
+            </SectionContainer>
           </div>
         )}
 
         {/* CTA Button */}
         <div className="text-center">
-          <button
+          <PrimaryButton
             onClick={handleSubmit}
             disabled={!isFormValid() || isLoading}
-            className={`font-semibold py-4 px-8 md:py-5 md:px-12 rounded-lg text-lg md:text-xl shadow-lg transition-all duration-300 ${
-              isFormValid() && !isLoading
-                ? 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-xl transform hover:scale-105 cursor-pointer'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
           >
             {isLoading ? 'Processing...' : 'Get Started Free'}
-          </button>
+          </PrimaryButton>
         </div>
 
         {/* Tab-based UI */}
         <div className="max-w-4xl mx-auto mt-16 md:mt-20">
-          <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl border border-indigo-50 overflow-hidden">
+          <SectionContainer className="overflow-hidden">
             {/* Tab Headers */}
             <div className="border-b border-gray-200">
               <div className="flex flex-wrap">
@@ -847,40 +430,16 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
                       Hyperlocal Advertising Platform
                     </h3>
-                    <button
-                      onClick={() =>
-                        copyToClipboard(
-                          'Reach customers in your neighborhood with targeted local ads designed specifically for MSMEs. Our platform helps small businesses connect with nearby customers and boost sales.',
-                          'Description'
-                        )
-                      }
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
-                      title="Copy description"
-                    >
-                      <svg
-                        className="w-5 h-5 text-gray-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </button>
+                    <CopyButton
+                      text="Reach customers in your neighborhood with targeted local ads designed specifically for MSMEs. Our platform helps small businesses connect with nearby customers and boost sales."
+                      label="Description"
+                      variant="icon"
+                    />
                   </div>
                   <p className="text-gray-600 text-base md:text-lg leading-relaxed">
                     Reach customers in your neighborhood with targeted local ads
                     designed specifically for MSMEs. Our platform helps small
                     businesses connect with nearby customers and boost sales.
-                    {copiedText === 'Description' && (
-                      <span className="ml-2 text-sm text-indigo-600 font-medium">
-                        Copied!
-                      </span>
-                    )}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     <div className="flex items-start gap-3">
@@ -1101,35 +660,14 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                             Email Support
                           </h4>
                         </div>
-                        <button
-                          onClick={() =>
-                            copyToClipboard('support@hyperlocalads.com', 'Email')
-                          }
-                          className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                          title="Copy email"
-                        >
-                          <svg
-                            className="w-5 h-5 text-gray-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                            />
-                          </svg>
-                        </button>
+                        <CopyButton
+                          text="support@hyperlocalads.com"
+                          label="Email"
+                          variant="icon"
+                        />
                       </div>
-                      <p className="text-sm text-gray-600 mb-2 flex items-center gap-2">
-                        <span>support@hyperlocalads.com</span>
-                        {copiedText === 'Email' && (
-                          <span className="text-xs text-indigo-600 font-medium">
-                            Copied!
-                          </span>
-                        )}
+                      <p className="text-sm text-gray-600 mb-2">
+                        support@hyperlocalads.com
                       </p>
                       <p className="text-xs text-gray-500">
                         Response within 24 hours
@@ -1226,7 +764,7 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                 </div>
               )}
             </div>
-          </div>
+          </SectionContainer>
         </div>
       </div>
     </div>
