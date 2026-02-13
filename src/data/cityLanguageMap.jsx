@@ -5,7 +5,6 @@ export const cityLanguageMap = {
   'Bangalore': 'Kannada',
   'Hyderabad': 'Telugu',
   'Chennai': 'Tamil',
-  'Kolkata': 'Bengali',
   'Pune': 'Marathi',
   'Ahmedabad': 'Gujarati',
   'Jaipur': 'Hindi',
