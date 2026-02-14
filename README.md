@@ -1,16 +1,93 @@
-# React + Vite
+# HyperLocal AI Content Engine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<strong>Empowering Small Businesses with Smart Advertising</strong>
 
-Currently, two official plugins are available:
+HyperLocal AI Content Engine is a React-based web application designed to help local and small businesses create engaging, personalized advertisements across multiple platforms. By leveraging artificial intelligence, the platform simplifies content generation, enabling users to craft high-impact posts for social media, voice ads, posters, WhatsApp messages and more—without needing marketing expertise.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Mission
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+To democratize marketing for neighborhood entrepreneurs by delivering an intuitive tool that:
 
-## Expanding the ESLint configuration
+1. **Generates tailored ad copy and visuals** in seconds.
+2. **Amplifies reach** through platform-specific formats.
+3. **Reduces cost and complexity** of traditional advertising.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🧠 Key Features
+
+- **AI-driven Content Generation** – Describe your product or service and get instant ad suggestions.
+- **Multi-channel Output** – Support for Instagram posts, posters, voice ads, and WhatsApp messages.
+- **Location & Language Personalization** – Target ads based on city and preferred language.
+- **Interactive Form Flow** – Easy step-by-step input for business type, product details, platform, etc.
+- **Copy-to-Clipboard & Download Options** – Export generated assets with a click.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Frontend:** React + Vite for lightning-fast development
+- **Styling:** Tailwind CSS (via `App.css` and component-specific CSS)
+- **State Management:** Component state with hooks
+- **API:** Lightweight service layer (`src/services/api.js`) for AI integration
+- **Build Tools:** ESLint, Prettier, and standard tooling configured for maintainability
+
+---
+
+## 📁 Project Structure Overview
+
+```
+src/
+├── components/       # UI building blocks
+├── pages/            # Route-based pages (Home, Generate)
+├── services/         # API and business logic
+└── data/             # Static data like city-language map
+```
+
+---
+
+## 🖥️ Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd HyperLocal-AI-Content-Engine
+   ```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Run locally**
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser and begin generating ads!
+
+---
+
+## 📝 Usage Tips
+
+1. Select your business category, platform, and language.
+2. Provide a brief description of your product or service.
+3. Click **Generate** and preview results across all available formats.
+4. Use the output tabs to copy text, download images, or play voice ads.
+
+> 💡 Pro Tip: Experiment with different keywords to see how the AI tailors messaging.
+
+---
+
+## 🤝 Contributing
+
+We welcome community input! Feel free to submit issues, suggest features, or open pull requests. Follow the standard [GitHub flow](https://guides.github.com/introduction/flow/) and ensure your code passes linting and any existing tests.
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+Build powerful local advertising in minutes. Let HyperLocal AI Content Engine be the voice of your small business!
