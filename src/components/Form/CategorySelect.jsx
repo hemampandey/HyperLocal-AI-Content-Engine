@@ -1,25 +1,18 @@
+import { useLanguage } from '../../i18n'
+
 /**
  * CategorySelect - Fixed category dropdown
- * @param {Object} props
- * @param {string} props.value - Selected value
- * @param {Function} props.onChange - Change handler
- * @param {string} props.label - Label text
- * @param {string} props.id - Select ID
  */
-export default function CategorySelect({ 
-  value, 
-  onChange, 
-  label = "Product category",
-  id = "product-category"
-}) {
+export default function CategorySelect({ value, onChange, id = 'product-category' }) {
+  const { t } = useLanguage()
   const categories = [
-    { value: '', label: 'Select a category' },
-    { value: 'food-beverage', label: 'Food & Beverages' },
-    { value: 'fashion', label: 'Fashion & Accessories' },
-    { value: 'services', label: 'Local Services' },
-    { value: 'health-beauty', label: 'Health & Beauty' },
-    { value: 'electronics', label: 'Electronics & Gadgets' },
-    { value: 'other', label: 'Other' }
+    { value: '', labelKey: 'form.selectCategory' },
+    { value: 'food-beverage', labelKey: 'form.categoryFood' },
+    { value: 'fashion', labelKey: 'form.categoryFashion' },
+    { value: 'services', labelKey: 'form.categoryServices' },
+    { value: 'health-beauty', labelKey: 'form.categoryHealth' },
+    { value: 'electronics', labelKey: 'form.categoryElectronics' },
+    { value: 'other', labelKey: 'form.categoryOther' },
   ]
 
   return (
@@ -28,7 +21,7 @@ export default function CategorySelect({
         htmlFor={id}
         className="block text-sm font-medium text-gray-700 mb-2"
       >
-        {label}
+        {t('form.productCategory')}
       </label>
       <select
         id={id}
@@ -38,7 +31,7 @@ export default function CategorySelect({
       >
         {categories.map((category) => (
           <option key={category.value} value={category.value}>
-            {category.label}
+            {t(category.labelKey)}
           </option>
         ))}
       </select>

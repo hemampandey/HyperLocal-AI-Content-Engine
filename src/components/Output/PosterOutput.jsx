@@ -1,15 +1,11 @@
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * PosterOutput - Display poster ad content
- * @param {Object} props
- * @param {Object} props.data - Poster data object
- * @param {string} props.data.headline - Poster headline
- * @param {string} props.data.description - Poster description
- * @param {string} props.data.offer - Special offer text
- * @param {string} props.data.imageUrl - Optional image URL
  */
 export default function PosterOutput({ data = {} }) {
+  const { t } = useLanguage()
   const { headline = '', description = '', offer = '', imageUrl = null } = data
 
   const posterText = `${headline}\n\n${description}${offer ? `\n\n${offer}` : ''}`
@@ -18,9 +14,9 @@ export default function PosterOutput({ data = {} }) {
     <div className="p-6 md:p-8 space-y-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-          Poster Ad
+          {t('output.posterAd')}
         </h3>
-        <CopyButton text={posterText} label="Poster" variant="primary" />
+        <CopyButton text={posterText} label={t('output.copyPoster')} variant="primary" />
       </div>
 
       {/* Poster Preview */}
@@ -60,9 +56,9 @@ export default function PosterOutput({ data = {} }) {
 
       {/* Raw Text Output */}
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <p className="text-sm font-medium text-gray-700 mb-2">Text Content:</p>
+        <p className="text-sm font-medium text-gray-700 mb-2">{t('output.textContent')}</p>
         <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans">
-          {posterText || 'No content available'}
+          {posterText || t('output.noContent')}
         </pre>
       </div>
     </div>

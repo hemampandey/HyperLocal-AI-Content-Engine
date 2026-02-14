@@ -1,14 +1,11 @@
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * InstagramOutput - Display Instagram post content
- * @param {Object} props
- * @param {Object} props.data - Instagram data object
- * @param {string} props.data.caption - Instagram caption
- * @param {Array} props.data.hashtags - Array of hashtags
- * @param {string} props.data.imageUrl - Optional image URL
  */
 export default function InstagramOutput({ data = {} }) {
+  const { t } = useLanguage()
   const { caption = '', hashtags = [], imageUrl = null } = data
 
   const hashtagsText = hashtags.length > 0 ? '\n\n' + hashtags.map(tag => `#${tag}`).join(' ') : ''
@@ -18,9 +15,9 @@ export default function InstagramOutput({ data = {} }) {
     <div className="p-6 md:p-8 space-y-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-          Instagram Post
+          {t('output.instagramPost')}
         </h3>
-        <CopyButton text={instagramText} label="Instagram" variant="primary" />
+        <CopyButton text={instagramText} label={t('output.copyInstagram')} variant="primary" />
       </div>
 
       {/* Instagram Post Preview */}
@@ -41,8 +38,8 @@ export default function InstagramOutput({ data = {} }) {
               <span className="text-indigo-600 font-semibold">@</span>
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Your Business</p>
-              <p className="text-xs text-gray-500">Location</p>
+              <p className="font-semibold text-gray-900">{t('output.yourBusiness')}</p>
+              <p className="text-xs text-gray-500">{t('output.location')}</p>
             </div>
           </div>
           
@@ -64,9 +61,9 @@ export default function InstagramOutput({ data = {} }) {
 
       {/* Raw Text Output */}
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <p className="text-sm font-medium text-gray-700 mb-2">Caption & Hashtags:</p>
+        <p className="text-sm font-medium text-gray-700 mb-2">{t('output.captionHashtags')}</p>
         <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans">
-          {instagramText || 'No content available'}
+          {instagramText || t('output.noContent')}
         </pre>
       </div>
     </div>

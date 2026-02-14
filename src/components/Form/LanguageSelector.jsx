@@ -1,38 +1,33 @@
 import { useEffect } from 'react'
+import { useLanguage } from '../../i18n'
+
+const adContentLanguages = [
+  { value: '', labelKey: 'form.selectLanguage' },
+  { value: 'Hindi', labelKey: 'languages.hi' },
+  { value: 'Marathi', labelKey: 'languages.mr' },
+  { value: 'Gujarati', labelKey: 'form.language' },
+  { value: 'Tamil', labelKey: 'languages.ta' },
+  { value: 'Telugu', labelKey: 'languages.te' },
+  { value: 'Kannada', labelKey: 'form.language' },
+  { value: 'Malayalam', labelKey: 'form.language' },
+  { value: 'Bengali', labelKey: 'languages.bn' },
+  { value: 'Punjabi', labelKey: 'form.language' },
+  { value: 'Odia', labelKey: 'form.language' },
+  { value: 'Assamese', labelKey: 'form.language' },
+  { value: 'English', labelKey: 'languages.en' },
+]
 
 /**
- * LanguageSelector - Auto-fill capable language selector (no API)
- * @param {Object} props
- * @param {string} props.value - Selected language
- * @param {Function} props.onChange - Change handler
- * @param {string} props.autoDetectedLanguage - Auto-detected language (optional)
- * @param {string} props.label - Label text
- * @param {string} props.id - Select ID
+ * LanguageSelector - Ad content language (for generated ads), not UI language
  */
-export default function LanguageSelector({ 
-  value, 
-  onChange, 
+export default function LanguageSelector({
+  value,
+  onChange,
   autoDetectedLanguage,
-  label = "Language",
-  id = "language-select"
+  id = 'language-select',
 }) {
-  const languages = [
-    { value: '', label: 'Select language' },
-    { value: 'Hindi', label: 'Hindi' },
-    { value: 'Marathi', label: 'Marathi' },
-    { value: 'Gujarati', label: 'Gujarati' },
-    { value: 'Tamil', label: 'Tamil' },
-    { value: 'Telugu', label: 'Telugu' },
-    { value: 'Kannada', label: 'Kannada' },
-    { value: 'Malayalam', label: 'Malayalam' },
-    { value: 'Bengali', label: 'Bengali' },
-    { value: 'Punjabi', label: 'Punjabi' },
-    { value: 'Odia', label: 'Odia' },
-    { value: 'Assamese', label: 'Assamese' },
-    { value: 'English', label: 'English' }
-  ]
+  const { t } = useLanguage()
 
-  // Auto-fill if autoDetectedLanguage is provided and value is empty
   useEffect(() => {
     if (autoDetectedLanguage && !value) {
       onChange(autoDetectedLanguage)
@@ -45,10 +40,10 @@ export default function LanguageSelector({
         htmlFor={id}
         className="block text-sm font-medium text-gray-700 mb-2"
       >
-        {label}
+        {t('form.language')}
         {autoDetectedLanguage && (
           <span className="ml-2 text-xs text-indigo-600 font-normal">
-            (Auto-detected: {autoDetectedLanguage})
+            ({t('form.languageAuto', { lang: autoDetectedLanguage })})
           </span>
         )}
       </label>
@@ -58,9 +53,9 @@ export default function LanguageSelector({
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm md:text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
       >
-        {languages.map((lang) => (
+        {adContentLanguages.map((lang) => (
           <option key={lang.value} value={lang.value}>
-            {lang.label}
+            {lang.labelKey === 'form.language' ? lang.value : t(lang.labelKey)}
           </option>
         ))}
       </select>

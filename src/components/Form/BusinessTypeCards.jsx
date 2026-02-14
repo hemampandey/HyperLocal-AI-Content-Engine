@@ -1,41 +1,23 @@
+import { useLanguage } from '../../i18n'
+
+const businessTypeKeys = [
+  { id: 'retail', labelKey: 'form.businessRetail', descKey: 'form.businessRetailDesc' },
+  { id: 'online', labelKey: 'form.businessOnline', descKey: 'form.businessOnlineDesc' },
+  { id: 'hybrid', labelKey: 'form.businessHybrid', descKey: 'form.businessHybridDesc' },
+]
+
 /**
- * BusinessTypeCards - Card-based selector for business types (kirana, boutique, etc.)
- * @param {Object} props
- * @param {string} props.value - Selected value
- * @param {Function} props.onChange - Change handler (receives business type ID)
+ * BusinessTypeCards - Card-based selector for business types
  */
 export default function BusinessTypeCards({ value, onChange }) {
-  const businessTypes = [
-    {
-      id: 'retail',
-      label: 'Retail store',
-      labelHindi: 'Retail Store',
-      description: 'Physical shop attracting walk-in customers.',
-      descriptionHindi: 'Physical dukaan jo walk-in customers attract karti hai.'
-    },
-    {
-      id: 'online',
-      label: 'Online only',
-      labelHindi: 'Sirf Online',
-      description: 'Sell via website, app, or marketplaces.',
-      descriptionHindi: 'Website, app, ya marketplaces se becho.'
-    },
-    {
-      id: 'hybrid',
-      label: 'Online + store',
-      labelHindi: 'Online + Dukaan',
-      description: 'Combine online orders with in-store sales.',
-      descriptionHindi: 'Online orders aur in-store sales dono.'
-    }
-  ]
-
+  const { t } = useLanguage()
   return (
     <div>
       <p className="block text-sm font-medium text-gray-700 mb-3">
-        Business type
+        {t('form.businessType')}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {businessTypes.map((type) => {
+        {businessTypeKeys.map((type) => {
           const isActive = value === type.id
           return (
             <button
@@ -52,7 +34,7 @@ export default function BusinessTypeCards({ value, onChange }) {
               `}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-semibold">{type.labelHindi || type.label}</span>
+                <span className="font-semibold">{t(type.labelKey)}</span>
                 <span
                   className={`
                     inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-medium
@@ -67,7 +49,7 @@ export default function BusinessTypeCards({ value, onChange }) {
                 </span>
               </div>
               <p className="text-xs md:text-sm text-gray-600">
-                {type.descriptionHindi || type.description}
+                {t(type.descKey)}
               </p>
             </button>
           )

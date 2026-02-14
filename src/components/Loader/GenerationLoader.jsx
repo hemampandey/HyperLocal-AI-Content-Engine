@@ -1,20 +1,14 @@
+import { useLanguage } from '../../i18n'
+
 /**
  * GenerationLoader - Step-based loader for ad generation
- * @param {Object} props
- * @param {number} props.currentStep - Current step index (0-based)
- * @param {Array} props.steps - Array of step objects with text and duration
- * @param {string} props.className - Additional CSS classes
  */
-export default function GenerationLoader({ 
+export default function GenerationLoader({
   currentStep = 0,
-  steps = [
-    { text: 'Product samajh rahe hain', duration: 2000 },
-    { text: 'Sheher ke trends dekh rahe hain', duration: 2000 },
-    { text: 'Local bhasha mein likh rahe hain', duration: 2500 },
-    { text: 'Ad tayar kar rahe hain', duration: 1500 }
-  ],
-  className = ''
+  steps = [],
+  className = '',
 }) {
+  const { t } = useLanguage()
   return (
     <div className={`max-w-2xl mx-auto mb-12 md:mb-16 ${className}`}>
       <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-8 md:p-12 border border-indigo-100">
@@ -117,7 +111,7 @@ export default function GenerationLoader({
               ></div>
             </div>
             <p className="text-xs text-gray-500 mt-2 text-center">
-              Step {currentStep + 1} of {steps.length}
+              {t('loader.stepOf', { current: currentStep + 1, total: steps.length })}
             </p>
           </div>
         </div>

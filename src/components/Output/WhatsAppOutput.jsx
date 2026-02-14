@@ -1,22 +1,21 @@
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * WhatsAppOutput - Display WhatsApp message in chat bubble format
- * @param {Object} props
- * @param {Object} props.data - WhatsApp data object
- * @param {string} props.data.message - Message text
- * @param {string} props.data.businessName - Business name
  */
 export default function WhatsAppOutput({ data = {} }) {
-  const { message = '', businessName = 'Your Business' } = data
+  const { t } = useLanguage()
+  const { message = '', businessName } = data
+  const displayName = businessName || t('output.yourBusiness')
 
   return (
     <div className="p-6 md:p-8 space-y-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-          WhatsApp Message
+          {t('output.whatsappMessage')}
         </h3>
-        <CopyButton text={message} label="WhatsApp" variant="primary" />
+        <CopyButton text={message} label={t('output.copyWhatsApp')} variant="primary" />
       </div>
 
       {/* WhatsApp Chat Preview */}
@@ -29,8 +28,8 @@ export default function WhatsAppOutput({ data = {} }) {
             </span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{businessName}</p>
-            <p className="text-xs text-gray-500">Online</p>
+            <p className="font-semibold text-gray-900">{displayName}</p>
+            <p className="text-xs text-gray-500">{t('output.online')}</p>
           </div>
         </div>
 
@@ -38,7 +37,7 @@ export default function WhatsAppOutput({ data = {} }) {
         <div className="flex justify-end">
           <div className="max-w-[80%] bg-green-500 rounded-lg rounded-tr-none p-3 shadow-sm">
             <p className="text-sm text-white whitespace-pre-wrap">
-              {message || 'No message available'}
+              {message || t('output.noMessage')}
             </p>
             <p className="text-xs text-green-100 mt-1 text-right">
               {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
@@ -49,9 +48,9 @@ export default function WhatsAppOutput({ data = {} }) {
 
       {/* Raw Text Output */}
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <p className="text-sm font-medium text-gray-700 mb-2">Message Text:</p>
+        <p className="text-sm font-medium text-gray-700 mb-2">{t('output.messageText')}</p>
         <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans">
-          {message || 'No content available'}
+          {message || t('output.noContent')}
         </pre>
       </div>
     </div>
