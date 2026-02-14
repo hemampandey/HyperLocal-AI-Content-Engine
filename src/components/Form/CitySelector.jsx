@@ -10,12 +10,15 @@ import { getAllCities, getLanguageForCity } from '../../data/cityLanguageMap'
  * @param {string} props.label - Label text
  * @param {string} props.id - Input ID
  */
-export default function CitySelector({ 
-  value, 
-  onChange, 
+export default function CitySelector({
+  value,
+  onChange,
   onLanguageChange,
-  label = "City",
-  id = "city-search"
+  label = 'City',
+  cityPlaceholder = 'Search for your city...',
+  noCitiesFoundTemplate = 'No cities found matching "{query}"',
+  languageLabel = 'Language',
+  id = 'city-search',
 }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -79,7 +82,7 @@ export default function CitySelector({
             }
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder="Search for your city..."
+          placeholder={cityPlaceholder}
           className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm md:text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
         />
         <svg
@@ -100,7 +103,7 @@ export default function CitySelector({
       {/* Language display */}
       {value && (
         <div className="mt-2 flex items-center gap-2">
-          <span className="text-xs text-gray-500">Language:</span>
+          <span className="text-xs text-gray-500">{languageLabel}:</span>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
             {getLanguageForCity(value)}
           </span>
@@ -137,7 +140,7 @@ export default function CitySelector({
       {isOpen && searchQuery && filteredCities.length === 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
           <p className="text-sm text-gray-500 text-center">
-            No cities found matching "{searchQuery}"
+            {noCitiesFoundTemplate.replace('{query}', searchQuery)}
           </p>
         </div>
       )}

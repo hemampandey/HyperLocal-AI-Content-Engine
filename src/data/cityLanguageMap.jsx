@@ -59,7 +59,6 @@ export const cityLanguageMap = {
   'Jalandhar': 'Punjabi',
   'Bathinda': 'Punjabi',
   'Patiala': 'Punjabi',
-  'Ludhiana': 'Punjabi',
   'Jammu': 'Dogri',
   'Dehradun': 'Hindi',
   'Haridwar': 'Hindi',

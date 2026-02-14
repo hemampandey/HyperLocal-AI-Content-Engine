@@ -4,7 +4,12 @@
  * @param {Array} props.selectedPlatforms - Array of selected platform IDs
  * @param {Function} props.onChange - Change handler (receives updated array of platform IDs)
  */
-export default function PlatformSelector({ selectedPlatforms = [], onChange }) {
+export default function PlatformSelector({
+  selectedPlatforms = [],
+  onChange,
+  selectPlatformsLabel = 'Select Platforms',
+  selectedLabel = '✓ Selected',
+}) {
   const platforms = [
     {
       id: 'instagram',
@@ -60,7 +65,7 @@ export default function PlatformSelector({ selectedPlatforms = [], onChange }) {
   return (
     <div>
       <p className="block text-sm font-medium text-gray-700 mb-3">
-        Select Platforms
+        {selectPlatformsLabel}
       </p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {platforms.map((platform) => {
@@ -84,7 +89,7 @@ export default function PlatformSelector({ selectedPlatforms = [], onChange }) {
               </div>
               <span className="font-semibold">{platform.labelHindi || platform.label}</span>
               {isSelected && (
-                <span className="text-xs text-indigo-600">✓ Selected</span>
+                <span className="text-xs text-indigo-600">{selectedLabel}</span>
               )}
             </button>
           )

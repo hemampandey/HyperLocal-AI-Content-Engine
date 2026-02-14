@@ -1,17 +1,22 @@
+import { useI18n } from '../../i18n/I18nContext'
+
 /**
  * HeroSection - Landing page hero section for Indian shopkeepers
  * @param {Object} props
  * @param {string} props.headline - Main headline text
  * @param {string} props.subheadline - Subheadline text (optional)
  * @param {string} props.ctaText - CTA button text
+ * @param {string} props.hyperlocalTitle - Title under headline
  * @param {Function} props.onCtaClick - CTA button click handler
  */
-export default function HeroSection({ 
-  headline = "Apni Dukaan Ko Digital Banao",
-  subheadline = "Local customers ko reach karein, sales badhayen",
-  ctaText = "Shuru Karein",
-  onCtaClick 
+export default function HeroSection({
+  headline,
+  subheadline,
+  ctaText,
+  hyperlocalTitle,
+  onCtaClick,
 }) {
+  const { t } = useI18n()
   return (
     <div className="container mx-auto px-4 py-12 md:py-20">
       {/* Headline */}
@@ -19,7 +24,7 @@ export default function HeroSection({
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
           {headline}
           <span className="block text-indigo-600 mt-2">
-            Hyperlocal Advertising
+            {hyperlocalTitle}
           </span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mt-6">
@@ -53,10 +58,10 @@ export default function HeroSection({
               <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-indigo-200 transform -translate-y-1/2"></div>
             </div>
             <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
-              Product
+              {t('hero.step1Title')}
             </h3>
             <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-              Apna product details share karein
+              {t('hero.step1Desc')}
             </p>
           </div>
 
@@ -89,10 +94,10 @@ export default function HeroSection({
               <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-indigo-200 transform -translate-y-1/2"></div>
             </div>
             <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
-              City
+              {t('hero.step2Title')}
             </h3>
             <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-              Apna sheher select karein
+              {t('hero.step2Desc')}
             </p>
           </div>
 
@@ -118,10 +123,10 @@ export default function HeroSection({
               </div>
             </div>
             <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
-              Ad Ready
+              {t('hero.step3Title')}
             </h3>
             <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-              Ad tayar ho jayega
+              {t('hero.step3Desc')}
             </p>
           </div>
         </div>

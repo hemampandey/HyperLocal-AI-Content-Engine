@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useI18n } from '../../i18n/I18nContext'
 
 /**
  * CopyButton - Reusable button for copying text to clipboard
@@ -9,6 +10,7 @@ import { useState } from 'react'
  * @param {string} props.variant - Button variant ('primary' | 'icon' | 'ghost')
  */
 export default function CopyButton({ text, label = 'Text', className = '', variant = 'primary' }) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -42,11 +44,15 @@ export default function CopyButton({ text, label = 'Text', className = '', varia
     ghost: 'flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors'
   }
 
+  const copyLabel = t('common.copy', { label })
+  const copiedLabel = t('common.copied')
+  const titleAttr = t('common.copyTitle', { label })
+
   return (
     <button
       onClick={handleCopy}
       className={`${baseClasses[variant]} ${className}`}
-      title={`Copy ${label}`}
+      title={titleAttr}
     >
       {copied ? (
         <>
@@ -63,7 +69,7 @@ export default function CopyButton({ text, label = 'Text', className = '', varia
               d="M5 13l4 4L19 7"
             />
           </svg>
-          {variant !== 'icon' && <span>Copied!</span>}
+          {variant !== 'icon' && <span>{copiedLabel}</span>}
         </>
       ) : (
         <>
@@ -80,7 +86,7 @@ export default function CopyButton({ text, label = 'Text', className = '', varia
               d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
             />
           </svg>
-          {variant !== 'icon' && <span>Copy {label}</span>}
+          {variant !== 'icon' && <span>{copyLabel}</span>}
         </>
       )}
     </button>

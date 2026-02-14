@@ -9,15 +9,22 @@
 export default function PrimaryButton({ children, onClick, disabled = false, className = '' }) {
   return (
     <button
-      onClick={onClick}
-      disabled={disabled}
+      type="button"                 // prevents form auto-submit bug
+      onClick={onClick}              // click handler
+      disabled={disabled}            // browser-level disable
       className={`
-        font-semibold py-4 px-8 md:py-5 md:px-12 rounded-lg text-lg md:text-xl shadow-lg 
+        font-semibold
+        py-4 px-8 md:py-5 md:px-12
+        rounded-lg
+        text-lg md:text-xl
+        shadow-lg
         transition-all duration-300
+
         ${disabled
           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
           : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-xl transform hover:scale-105 cursor-pointer'
         }
+
         ${className}
       `}
     >

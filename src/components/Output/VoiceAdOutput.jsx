@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/I18nContext'
 import CopyButton from '../Common/CopyButton'
 
 /**
@@ -9,11 +10,12 @@ import CopyButton from '../Common/CopyButton'
  * @param {string} props.data.language - Language of the script
  */
 export default function VoiceAdOutput({ data = {} }) {
+  const { t } = useI18n()
   const { script = '', duration = 0, language = 'Hindi' } = data
 
   const formatDuration = (seconds) => {
     if (seconds < 60) {
-      return `${seconds} seconds`
+      return t('output.seconds', { count: seconds })
     }
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -24,9 +26,9 @@ export default function VoiceAdOutput({ data = {} }) {
     <div className="p-6 md:p-8 space-y-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-          Voice Ad Script
+          {t('output.voiceScript')}
         </h3>
-        <CopyButton text={script} label="Voice Script" variant="primary" />
+        <CopyButton text={script} label={t('output.voice')} variant="primary" />
       </div>
 
       {/* Voice Ad Preview */}
@@ -50,13 +52,13 @@ export default function VoiceAdOutput({ data = {} }) {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Language</p>
+              <p className="text-sm text-gray-600">{t('output.language')}</p>
               <p className="font-semibold text-gray-900">{language}</p>
             </div>
           </div>
           
           <div className="bg-white rounded-lg px-4 py-2 shadow-sm">
-            <p className="text-xs text-gray-600">Duration</p>
+            <p className="text-xs text-gray-600">{t('output.duration')}</p>
             <p className="text-lg font-bold text-purple-600">
               {formatDuration(duration)}
             </p>
@@ -66,24 +68,23 @@ export default function VoiceAdOutput({ data = {} }) {
         {/* Script Content */}
         <div className="bg-white rounded-lg p-6 border border-purple-100">
           <p className="text-base md:text-lg text-gray-900 leading-relaxed whitespace-pre-wrap">
-            {script || 'No script available'}
+            {script || t('output.noScript')}
           </p>
         </div>
 
         {/* Reading Guide */}
         <div className="mt-4 p-4 bg-purple-100 rounded-lg">
           <p className="text-sm text-purple-900">
-            <strong>Tip:</strong> Read this script clearly and at a moderate pace. 
-            Pause after each sentence for better clarity.
+            {t('output.tipVoice')}
           </p>
         </div>
       </div>
 
       {/* Raw Text Output */}
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <p className="text-sm font-medium text-gray-700 mb-2">Script Text:</p>
+        <p className="text-sm font-medium text-gray-700 mb-2">{t('output.scriptText')}</p>
         <pre className="text-sm text-gray-600 whitespace-pre-wrap font-sans">
-          {script || 'No content available'}
+          {script || t('output.noContent')}
         </pre>
       </div>
     </div>

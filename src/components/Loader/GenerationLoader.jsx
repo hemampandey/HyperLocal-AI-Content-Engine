@@ -1,3 +1,5 @@
+import { useI18n } from '../../i18n/I18nContext'
+
 /**
  * GenerationLoader - Step-based loader for ad generation
  * @param {Object} props
@@ -5,23 +7,26 @@
  * @param {Array} props.steps - Array of step objects with text and duration
  * @param {string} props.className - Additional CSS classes
  */
-export default function GenerationLoader({ 
+export default function GenerationLoader({
   currentStep = 0,
-  steps = [
-    { text: 'Product samajh rahe hain', duration: 2000 },
-    { text: 'Sheher ke trends dekh rahe hain', duration: 2000 },
-    { text: 'Local bhasha mein likh rahe hain', duration: 2500 },
-    { text: 'Ad tayar kar rahe hain', duration: 1500 }
-  ],
-  className = ''
+  steps,
+  className = '',
 }) {
+  const { t } = useI18n()
+  const defaultSteps = [
+    { text: t('loader.step1'), duration: 2000 },
+    { text: t('loader.step2'), duration: 2000 },
+    { text: t('loader.step3'), duration: 2500 },
+    { text: t('loader.step4'), duration: 1500 },
+  ]
+  const stepList = steps && steps.length > 0 ? steps : defaultSteps
   return (
     <div className={`max-w-2xl mx-auto mb-12 md:mb-16 ${className}`}>
       <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-8 md:p-12 border border-indigo-100">
         <div className="space-y-8">
           {/* Progress Steps */}
           <div className="space-y-6">
-            {steps.map((step, index) => {
+            {stepList.map((step, index) => {
               const isActive = index === currentStep
               const isCompleted = index < currentStep
               return (
@@ -112,12 +117,12 @@ export default function GenerationLoader({
               <div
                 className="bg-indigo-600 h-2 rounded-full transition-all duration-500 ease-out"
                 style={{
-                  width: `${((currentStep + 1) / steps.length) * 100}%`,
+                  width: `${((currentStep + 1) / stepList.length) * 100}%`,
                 }}
               ></div>
             </div>
             <p className="text-xs text-gray-500 mt-2 text-center">
-              Step {currentStep + 1} of {steps.length}
+              {t('loader.stepOf', { current: currentStep + 1, total: stepList.length })}
             </p>
           </div>
         </div>

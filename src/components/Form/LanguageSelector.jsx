@@ -9,15 +9,17 @@ import { useEffect } from 'react'
  * @param {string} props.label - Label text
  * @param {string} props.id - Select ID
  */
-export default function LanguageSelector({ 
-  value, 
-  onChange, 
+export default function LanguageSelector({
+  value,
+  onChange,
   autoDetectedLanguage,
-  label = "Language",
-  id = "language-select"
+  label = 'Language',
+  selectLanguageLabel = 'Select language',
+  autoDetectedLabel = 'Auto-detected: {lang}',
+  id = 'language-select',
 }) {
   const languages = [
-    { value: '', label: 'Select language' },
+    { value: '', label: selectLanguageLabel },
     { value: 'Hindi', label: 'Hindi' },
     { value: 'Marathi', label: 'Marathi' },
     { value: 'Gujarati', label: 'Gujarati' },
@@ -48,7 +50,7 @@ export default function LanguageSelector({
         {label}
         {autoDetectedLanguage && (
           <span className="ml-2 text-xs text-indigo-600 font-normal">
-            (Auto-detected: {autoDetectedLanguage})
+            ({autoDetectedLabel.replace('{lang}', autoDetectedLanguage)})
           </span>
         )}
       </label>

@@ -6,20 +6,27 @@
  * @param {string} props.label - Label text
  * @param {string} props.id - Select ID
  */
-export default function CategorySelect({ 
-  value, 
-  onChange, 
-  label = "Product category",
-  id = "product-category"
+const DEFAULT_CATEGORIES = [
+  { value: '', label: 'Select a category' },
+  { value: 'food-beverage', label: 'Food & Beverages' },
+  { value: 'fashion', label: 'Fashion & Accessories' },
+  { value: 'services', label: 'Local Services' },
+  { value: 'health-beauty', label: 'Health & Beauty' },
+  { value: 'electronics', label: 'Electronics & Gadgets' },
+  { value: 'other', label: 'Other' },
+]
+
+export default function CategorySelect({
+  value,
+  onChange,
+  label = 'Product category',
+  selectLabel = 'Select a category',
+  categoryOptions = DEFAULT_CATEGORIES,
+  id = 'product-category',
 }) {
   const categories = [
-    { value: '', label: 'Select a category' },
-    { value: 'food-beverage', label: 'Food & Beverages' },
-    { value: 'fashion', label: 'Fashion & Accessories' },
-    { value: 'services', label: 'Local Services' },
-    { value: 'health-beauty', label: 'Health & Beauty' },
-    { value: 'electronics', label: 'Electronics & Gadgets' },
-    { value: 'other', label: 'Other' }
+    { value: '', label: selectLabel },
+    ...categoryOptions,
   ]
 
   return (
