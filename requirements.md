@@ -12,9 +12,9 @@ The HyperLocal AI Content Engine is a system designed to generate localized, hig
 - Optional: Product image
 
 ### 2. AI-Generated Output
-- Social media caption (max 150 chars)
-- 5-10 hashtags (mix of regional language + English)
-- Voice ad script (~30 seconds)
+- Social media caption
+- Hashtags
+- Video advertisement
 - One-click WhatsApp promotion
 - Poster image
 
@@ -23,31 +23,9 @@ The HyperLocal AI Content Engine is a system designed to generate localized, hig
 - Incorporates local festivals and cultural context
 - Adapts tone for regional preferences
 
-## MVP Requirements
-
-**Must Have:**
--  Text input form (product, city, language)
--  LLM integration for ad copy generation
--  Image generation for poster
--  Display all 5 outputs together
--  Works for at least 3 languages (Hindi, Tamil, Telugu)
--  Works for at least 5 cities (Mumbai, Delhi, Bangalore, Chennai, Kolkata)
-
-**Nice to Have:**
-- RAG-based trend retrieval (can fake with hardcoded trends for demo)
-- Translation service (LLM can generate directly in target language)
-- Multiple product categories
-
-**Skip for Demo:**
-- User authentication
-- File upload for product images
-- Database storage
-- Production deployment
-- Error handling beyond basic try-catch
-
 ## Tech Stack
-- Frontend: HTML/CSS/JS
-- Backend: Python Flask/FastAPI
-- LLM: OpenAI GPT-4 or Gemini
-- Image: DALL-E or Stable Diffusion
-- RAG: Simple in-memory vector store or hardcoded trends
+- AI Models: Amazon Bedrock (Claude / Titan / Llama models)
+- Storage: Amazon S3
+- Frontend: React.js
+- Backend: AWS Lambda
+- Deployment: AWS Cloud
