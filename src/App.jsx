@@ -1,6 +1,7 @@
 import './App.css'
 import { useState, useEffect } from 'react'
 import { submitCampaign } from './services/api'
+import { useLanguage } from './i18n'
 
 // Landing Components
 import HeroSection from './components/Landing/HeroSection'
@@ -31,6 +32,7 @@ import SectionContainer from './components/Common/SectionContainer'
 import CopyButton from './components/Common/CopyButton'
 
 function App() {
+  const { t } = useLanguage()
   const [productName, setProductName] = useState('')
   const [productCategory, setProductCategory] = useState('')
   const [businessType, setBusinessType] = useState('retail')
@@ -46,10 +48,10 @@ function App() {
   const [apiResponse, setApiResponse] = useState(null)
 
   const loadingSteps = [
-    { text: 'Product samajh rahe hain', duration: 2000 },
-    { text: 'Sheher ke trends dekh rahe hain', duration: 2000 },
-    { text: 'Local bhasha mein likh rahe hain', duration: 2500 },
-    { text: 'Ad tayar kar rahe hain', duration: 1500 },
+    { textKey: 'loader.step1', duration: 2000 },
+    { textKey: 'loader.step2', duration: 2000 },
+    { textKey: 'loader.step3', duration: 2500 },
+    { textKey: 'loader.step4', duration: 1500 },
   ]
 
   // Validate required fields
@@ -64,18 +66,18 @@ function App() {
   // Generate formatted form summary
   const generateFormSummary = () => {
     const categoryLabels = {
-      'food-beverage': 'Food & Beverages',
-      fashion: 'Fashion & Accessories',
-      services: 'Local Services',
-      'health-beauty': 'Health & Beauty',
-      electronics: 'Electronics & Gadgets',
-      other: 'Other',
+      'food-beverage': t('form.categoryFood'),
+      fashion: t('form.categoryFashion'),
+      services: t('form.categoryServices'),
+      'health-beauty': t('form.categoryHealth'),
+      electronics: t('form.categoryElectronics'),
+      other: t('form.categoryOther'),
     }
 
     const businessTypeLabels = {
-      retail: 'Retail Store',
-      online: 'Online Only',
-      hybrid: 'Online + Store',
+      retail: t('form.businessRetail'),
+      online: t('form.businessOnline'),
+      hybrid: t('form.businessHybrid'),
     }
 
     return `Hyperlocal Ad Campaign Details
@@ -85,7 +87,7 @@ Category: ${categoryLabels[productCategory] || productCategory}
 Business Type: ${businessTypeLabels[businessType] || businessType}
 City: ${selectedCity}
 Language: ${selectedLanguage}
-${offer ? `Special Offer: ${offer}` : ''}
+${offer ? `${t('form.specialOffer')}: ${offer}` : ''}
 
 Generated on: ${new Date().toLocaleDateString('en-IN', {
       year: 'numeric',
@@ -186,9 +188,9 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50">
       {/* Hero Section */}
       <HeroSection
-        headline="Apni Dukaan Ko Digital Banao"
-        subheadline="Local customers ko reach karein, sales badhayen"
-        ctaText="Shuru Karein"
+        headline={t('hero.headline')}
+        subheadline={t('hero.subheadline')}
+        ctaText={t('hero.cta')}
         onCtaClick={() => {
           document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' })
         }}
@@ -202,10 +204,10 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
         <div className="max-w-3xl mx-auto mb-12 md:mb-16">
           <SectionContainer>
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">
-              Tell us about your product
+              {t('form.tellUs')}
             </h2>
             <p className="text-gray-600 mb-6">
-              We'll use this to tailor hyperlocal campaigns for your MSME.
+              {t('form.tellUsDesc')}
             </p>
 
             <div className="space-y-6">
@@ -262,7 +264,7 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
         {isLoading && (
           <GenerationLoader
             currentStep={currentStep}
-            steps={loadingSteps}
+            steps={loadingSteps.map((s) => ({ text: t(s.textKey), duration: s.duration }))}
           />
         )}
 
@@ -272,19 +274,19 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
             <SectionContainer className="overflow-hidden">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Your Ad Campaign
+                  {t('results.yourCampaign')}
                 </h3>
                 <div className="flex items-center gap-2">
                   <CopyButton
                     text={generateFormSummary()}
-                    label="Summary"
+                    label={t('results.summary')}
                     variant="primary"
                   />
                   <button
                     onClick={() => setShowResults(false)}
                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
                   >
-                    Close
+                    {t('results.close')}
                   </button>
                 </div>
               </div>
@@ -294,10 +296,10 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                 activeTab={outputTab}
                 onTabChange={setOutputTab}
                 tabs={[
-                  { id: 0, label: 'Poster' },
-                  { id: 1, label: 'Instagram' },
-                  { id: 2, label: 'WhatsApp' },
-                  { id: 3, label: 'Voice' },
+                  { id: 0, label: t('results.poster') },
+                  { id: 1, label: t('results.instagram') },
+                  { id: 2, label: t('results.whatsapp') },
+                  { id: 3, label: t('results.voice') },
                 ]}
               />
 
@@ -326,15 +328,15 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    Campaign Created Successfully
+                    {t('results.campaignCreated')}
                   </h4>
                   <div className="space-y-2 text-sm">
                     <p className="text-gray-700">
-                      <span className="font-medium">Campaign ID:</span>{' '}
+                      <span className="font-medium">{t('results.campaignId')}:</span>{' '}
                       {apiResponse.data.campaign.id}
                     </p>
                     <p className="text-gray-700">
-                      <span className="font-medium">Status:</span>{' '}
+                      <span className="font-medium">{t('results.status')}:</span>{' '}
                       <span className="text-green-600 font-semibold capitalize">
                         {apiResponse.data.campaign.status}
                       </span>
@@ -342,29 +344,29 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                     {apiResponse.data.analytics && (
                       <div className="mt-3 pt-3 border-t border-indigo-200">
                         <p className="font-medium text-indigo-900 mb-2">
-                          Estimated Performance:
+                          {t('results.estimatedPerformance')}:
                         </p>
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div>
-                            <span className="text-gray-600">Reach:</span>{' '}
+                            <span className="text-gray-600">{t('results.reach')}:</span>{' '}
                             <span className="font-semibold">
                               {apiResponse.data.analytics.estimatedReach.toLocaleString()}
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-600">Impressions:</span>{' '}
+                            <span className="text-gray-600">{t('results.impressions')}:</span>{' '}
                             <span className="font-semibold">
                               {apiResponse.data.analytics.estimatedImpressions.toLocaleString()}
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-600">Clicks:</span>{' '}
+                            <span className="text-gray-600">{t('results.clicks')}:</span>{' '}
                             <span className="font-semibold">
                               {apiResponse.data.analytics.estimatedClicks.toLocaleString()}
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-600">Conversions:</span>{' '}
+                            <span className="text-gray-600">{t('results.conversions')}:</span>{' '}
                             <span className="font-semibold">
                               {apiResponse.data.analytics.estimatedConversions.toLocaleString()}
                             </span>
@@ -375,7 +377,7 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                   </div>
                   <CopyButton
                     text={JSON.stringify(apiResponse, null, 2)}
-                    label="API Response"
+                    label={t('results.apiResponse')}
                     variant="primary"
                     className="mt-4 w-full justify-center"
                   />
@@ -391,7 +393,7 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
             onClick={handleSubmit}
             disabled={!isFormValid() || isLoading}
           >
-            {isLoading ? 'Processing...' : 'Get Started Free'}
+            {isLoading ? t('cta.processing') : t('cta.getStarted')}
           </PrimaryButton>
         </div>
 
@@ -402,10 +404,10 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
             <div className="border-b border-gray-200">
               <div className="flex flex-wrap">
                 {[
-                  { id: 0, label: 'Overview' },
-                  { id: 1, label: 'Features' },
-                  { id: 2, label: 'Pricing' },
-                  { id: 3, label: 'Support' },
+                  { id: 0, label: t('tabs.overview') },
+                  { id: 1, label: t('tabs.features') },
+                  { id: 2, label: t('tabs.pricing') },
+                  { id: 3, label: t('tabs.support') },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -428,18 +430,16 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                 <div className="space-y-4 animate-fade-in">
                   <div className="flex items-start justify-between gap-4">
                     <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                      Hyperlocal Advertising Platform
+                      {t('overview.title')}
                     </h3>
                     <CopyButton
-                      text="Reach customers in your neighborhood with targeted local ads designed specifically for MSMEs. Our platform helps small businesses connect with nearby customers and boost sales."
-                      label="Description"
+                      text={t('overview.description')}
+                      label={t('results.summary')}
                       variant="icon"
                     />
                   </div>
                   <p className="text-gray-600 text-base md:text-lg leading-relaxed">
-                    Reach customers in your neighborhood with targeted local ads
-                    designed specifically for MSMEs. Our platform helps small
-                    businesses connect with nearby customers and boost sales.
+                    {t('overview.description')}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     <div className="flex items-start gap-3">
@@ -460,10 +460,10 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">
-                          Local Targeting
+                          {t('overview.localTargeting')}
                         </h4>
                         <p className="text-sm text-gray-600">
-                          Target customers within your business radius
+                          {t('overview.localTargetingDesc')}
                         </p>
                       </div>
                     </div>
@@ -485,10 +485,10 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900">
-                          Easy Setup
+                          {t('overview.easySetup')}
                         </h4>
                         <p className="text-sm text-gray-600">
-                          Get started in minutes with simple form
+                          {t('overview.easySetupDesc')}
                         </p>
                       </div>
                     </div>
@@ -499,29 +499,25 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
               {activeTab === 1 && (
                 <div className="space-y-6 animate-fade-in">
                   <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                    Powerful Features
+                    {t('platformFeatures.title')}
                   </h3>
                   <div className="space-y-4">
                     {[
                       {
-                        title: 'Multi-language Support',
-                        description:
-                          'Automatically detect and use the local language based on your city selection.',
+                        titleKey: 'platformFeatures.multiLanguage',
+                        descKey: 'platformFeatures.multiLanguageDesc',
                       },
                       {
-                        title: 'Smart Category Matching',
-                        description:
-                          'Choose from various product categories optimized for local markets.',
+                        titleKey: 'platformFeatures.smartCategory',
+                        descKey: 'platformFeatures.smartCategoryDesc',
                       },
                       {
-                        title: 'Offer Management',
-                        description:
-                          'Create compelling offers and promotions that attract local customers.',
+                        titleKey: 'platformFeatures.offerManagement',
+                        descKey: 'platformFeatures.offerManagementDesc',
                       },
                       {
-                        title: 'Business Type Optimization',
-                        description:
-                          'Tailored ad strategies for retail stores, online businesses, or hybrid models.',
+                        titleKey: 'platformFeatures.businessOptimization',
+                        descKey: 'platformFeatures.businessOptimizationDesc',
                       },
                     ].map((feature, index) => (
                       <div
@@ -529,10 +525,10 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                         className="p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
                       >
                         <h4 className="font-semibold text-gray-900 mb-1">
-                          {feature.title}
+                          {t(feature.titleKey)}
                         </h4>
                         <p className="text-sm text-gray-600">
-                          {feature.description}
+                          {t(feature.descKey)}
                         </p>
                       </div>
                     ))}
@@ -543,42 +539,28 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
               {activeTab === 2 && (
                 <div className="space-y-6 animate-fade-in">
                   <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                    Simple Pricing
+                    {t('pricing.title')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     {[
                       {
-                        name: 'Starter',
+                        nameKey: 'pricing.starter',
                         price: '₹999',
-                        period: '/month',
-                        features: [
-                          'Up to 100 ads',
-                          'Local targeting',
-                          'Basic analytics',
-                        ],
+                        periodKey: 'pricing.perMonth',
+                        featureKeys: ['pricing.upTo100Ads', 'pricing.localTargeting', 'pricing.basicAnalytics'],
                       },
                       {
-                        name: 'Professional',
+                        nameKey: 'pricing.professional',
                         price: '₹2,499',
-                        period: '/month',
-                        features: [
-                          'Unlimited ads',
-                          'Advanced targeting',
-                          'Detailed analytics',
-                          'Priority support',
-                        ],
+                        periodKey: 'pricing.perMonth',
+                        featureKeys: ['pricing.unlimitedAds', 'pricing.advancedTargeting', 'pricing.detailedAnalytics', 'pricing.prioritySupport'],
                         popular: true,
                       },
                       {
-                        name: 'Enterprise',
-                        price: 'Custom',
-                        period: '',
-                        features: [
-                          'Custom solutions',
-                          'Dedicated manager',
-                          'API access',
-                          '24/7 support',
-                        ],
+                        nameKey: 'pricing.enterprise',
+                        price: t('pricing.custom'),
+                        periodKey: null,
+                        featureKeys: ['pricing.customSolutions', 'pricing.dedicatedManager', 'pricing.apiAccess', 'pricing.support24x7'],
                       },
                     ].map((plan, index) => (
                       <div
@@ -591,20 +573,20 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                       >
                         {plan.popular && (
                           <span className="inline-block px-2 py-1 text-xs font-semibold text-indigo-600 bg-indigo-100 rounded mb-3">
-                            Popular
+                            {t('pricing.popular')}
                           </span>
                         )}
                         <h4 className="text-xl font-bold text-gray-900 mb-2">
-                          {plan.name}
+                          {t(plan.nameKey)}
                         </h4>
                         <div className="mb-4">
                           <span className="text-3xl font-bold text-gray-900">
                             {plan.price}
                           </span>
-                          <span className="text-gray-600">{plan.period}</span>
+                          <span className="text-gray-600">{plan.periodKey ? t(plan.periodKey) : ''}</span>
                         </div>
                         <ul className="space-y-2">
-                          {plan.features.map((feature, idx) => (
+                          {plan.featureKeys.map((key, idx) => (
                             <li
                               key={idx}
                               className="flex items-start gap-2 text-sm text-gray-600"
@@ -622,7 +604,7 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                                   d="M5 13l4 4L19 7"
                                 />
                               </svg>
-                              {feature}
+                              {t(key)}
                             </li>
                           ))}
                         </ul>
@@ -635,7 +617,7 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
               {activeTab === 3 && (
                 <div className="space-y-6 animate-fade-in">
                   <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                    Get Support
+                    {t('support.title')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="p-6 rounded-lg bg-gray-50 border border-gray-200">
@@ -657,20 +639,20 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                             </svg>
                           </div>
                           <h4 className="font-semibold text-gray-900">
-                            Email Support
+                            {t('support.emailSupport')}
                           </h4>
                         </div>
                         <CopyButton
-                          text="support@hyperlocalads.com"
-                          label="Email"
+                          text={t('support.emailValue')}
+                          label={t('support.emailSupport')}
                           variant="icon"
                         />
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
-                        support@hyperlocalads.com
+                        {t('support.emailValue')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Response within 24 hours
+                        {t('support.responseTime')}
                       </p>
                     </div>
 
@@ -692,14 +674,14 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                           </svg>
                         </div>
                         <h4 className="font-semibold text-gray-900">
-                          Live Chat
+                          {t('support.liveChat')}
                         </h4>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
-                        Available 9 AM - 6 PM IST
+                        {t('support.liveChatHours')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Monday to Saturday
+                        {t('support.liveChatDays')}
                       </p>
                     </div>
 
@@ -721,14 +703,14 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                           </svg>
                         </div>
                         <h4 className="font-semibold text-gray-900">
-                          Documentation
+                          {t('support.documentation')}
                         </h4>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
-                        Comprehensive guides and tutorials
+                        {t('support.documentationDesc')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Learn how to maximize your results
+                        {t('support.documentationSub')}
                       </p>
                     </div>
 
@@ -750,14 +732,14 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                           </svg>
                         </div>
                         <h4 className="font-semibold text-gray-900">
-                          Community Forum
+                          {t('support.communityForum')}
                         </h4>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
-                        Connect with other MSMEs
+                        {t('support.communityForumDesc')}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Share tips and best practices
+                        {t('support.communityForumSub')}
                       </p>
                     </div>
                   </div>

@@ -1,26 +1,23 @@
-import { useI18n } from '../../i18n/I18nContext'
+import { useLanguage } from '../../i18n'
+
+const businessTypeKeys = [
+  { id: 'retail', labelKey: 'form.businessRetail', descKey: 'form.businessRetailDesc' },
+  { id: 'online', labelKey: 'form.businessOnline', descKey: 'form.businessOnlineDesc' },
+  { id: 'hybrid', labelKey: 'form.businessHybrid', descKey: 'form.businessHybridDesc' },
+]
 
 /**
- * BusinessTypeCards - Card-based selector for business types (kirana, boutique, etc.)
- * @param {Object} props
- * @param {string} props.value - Selected value
- * @param {Function} props.onChange - Change handler (receives business type ID)
+ * BusinessTypeCards - Card-based selector for business types
  */
 export default function BusinessTypeCards({ value, onChange }) {
-  const { t } = useI18n()
-  const businessTypes = [
-    { id: 'retail', labelKey: 'businessTypes.retail', descKey: 'businessTypes.retailDesc' },
-    { id: 'online', labelKey: 'businessTypes.online', descKey: 'businessTypes.onlineDesc' },
-    { id: 'hybrid', labelKey: 'businessTypes.hybrid', descKey: 'businessTypes.hybridDesc' },
-  ]
-
+  const { t } = useLanguage()
   return (
     <div>
       <p className="block text-sm font-medium text-gray-700 mb-3">
         {t('form.businessType')}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {businessTypes.map((type) => {
+        {businessTypeKeys.map((type) => {
           const isActive = value === type.id
           return (
             <button

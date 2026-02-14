@@ -1,16 +1,11 @@
 import { useState } from 'react'
-import { useI18n } from '../../i18n/I18nContext'
+import { useLanguage } from '../../i18n'
 
 /**
  * CopyButton - Reusable button for copying text to clipboard
- * @param {Object} props
- * @param {string} props.text - Text to copy
- * @param {string} props.label - Label for toast notification
- * @param {string} props.className - Additional CSS classes
- * @param {string} props.variant - Button variant ('primary' | 'icon' | 'ghost')
  */
 export default function CopyButton({ text, label = 'Text', className = '', variant = 'primary' }) {
-  const { t } = useI18n()
+  const { t } = useLanguage()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -44,15 +39,11 @@ export default function CopyButton({ text, label = 'Text', className = '', varia
     ghost: 'flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors'
   }
 
-  const copyLabel = t('common.copy', { label })
-  const copiedLabel = t('common.copied')
-  const titleAttr = t('common.copyTitle', { label })
-
   return (
     <button
       onClick={handleCopy}
       className={`${baseClasses[variant]} ${className}`}
-      title={titleAttr}
+      title={t('copy.copy', { label })}
     >
       {copied ? (
         <>
@@ -69,7 +60,7 @@ export default function CopyButton({ text, label = 'Text', className = '', varia
               d="M5 13l4 4L19 7"
             />
           </svg>
-          {variant !== 'icon' && <span>{copiedLabel}</span>}
+          {variant !== 'icon' && <span>{t('copy.copied')}</span>}
         </>
       ) : (
         <>
@@ -86,7 +77,7 @@ export default function CopyButton({ text, label = 'Text', className = '', varia
               d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
             />
           </svg>
-          {variant !== 'icon' && <span>{copyLabel}</span>}
+          {variant !== 'icon' && <span>{t('copy.copy', { label })}</span>}
         </>
       )}
     </button>

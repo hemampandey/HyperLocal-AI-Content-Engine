@@ -1,19 +1,14 @@
-import { useI18n } from '../../i18n/I18nContext'
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * InstagramOutput - Display Instagram post content
- * @param {Object} props
- * @param {Object} props.data - Instagram data object
- * @param {string} props.data.caption - Instagram caption
- * @param {Array} props.data.hashtags - Array of hashtags
- * @param {string} props.data.imageUrl - Optional image URL
  */
 export default function InstagramOutput({ data = {} }) {
-  const { t } = useI18n()
+  const { t } = useLanguage()
   const { caption = '', hashtags = [], imageUrl = null } = data
 
-  const hashtagsText = hashtags.length > 0 ? '\n\n' + hashtags.map((tag) => `#${tag}`).join(' ') : ''
+  const hashtagsText = hashtags.length > 0 ? '\n\n' + hashtags.map(tag => `#${tag}`).join(' ') : ''
   const instagramText = `${caption}${hashtagsText}`
 
   return (
@@ -22,7 +17,7 @@ export default function InstagramOutput({ data = {} }) {
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
           {t('output.instagramPost')}
         </h3>
-        <CopyButton text={instagramText} label={t('output.instagram')} variant="primary" />
+        <CopyButton text={instagramText} label={t('output.copyInstagram')} variant="primary" />
       </div>
 
       {/* Instagram Post Preview */}

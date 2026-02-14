@@ -1,25 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import { getAllCities, getLanguageForCity } from '../../data/cityLanguageMap'
+import { useLanguage } from '../../i18n'
 
 /**
  * CitySelector - Searchable dropdown with static city list
- * @param {Object} props
- * @param {string} props.value - Selected city
- * @param {Function} props.onChange - Change handler (receives city name)
- * @param {Function} props.onLanguageChange - Optional handler for language changes
- * @param {string} props.label - Label text
- * @param {string} props.id - Input ID
  */
 export default function CitySelector({
   value,
   onChange,
   onLanguageChange,
-  label = 'City',
-  cityPlaceholder = 'Search for your city...',
-  noCitiesFoundTemplate = 'No cities found matching "{query}"',
-  languageLabel = 'Language',
   id = 'city-search',
 }) {
+  const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -64,7 +56,7 @@ export default function CitySelector({
         htmlFor={id}
         className="block text-sm font-medium text-gray-700 mb-2"
       >
-        {label}
+        {t('form.city')}
       </label>
       <div className="relative">
         <input
@@ -82,7 +74,7 @@ export default function CitySelector({
             }
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder={cityPlaceholder}
+          placeholder={t('form.cityPlaceholder')}
           className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm md:text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
         />
         <svg
@@ -103,7 +95,7 @@ export default function CitySelector({
       {/* Language display */}
       {value && (
         <div className="mt-2 flex items-center gap-2">
-          <span className="text-xs text-gray-500">{languageLabel}:</span>
+          <span className="text-xs text-gray-500">{t('form.language')}:</span>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
             {getLanguageForCity(value)}
           </span>
@@ -140,7 +132,7 @@ export default function CitySelector({
       {isOpen && searchQuery && filteredCities.length === 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
           <p className="text-sm text-gray-500 text-center">
-            {noCitiesFoundTemplate.replace('{query}', searchQuery)}
+            {t('form.noCitiesFound', { query: searchQuery })}
           </p>
         </div>
       )}

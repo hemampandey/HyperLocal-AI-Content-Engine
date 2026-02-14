@@ -1,25 +1,21 @@
-import { useI18n } from '../../i18n/I18nContext'
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * WhatsAppOutput - Display WhatsApp message in chat bubble format
- * @param {Object} props
- * @param {Object} props.data - WhatsApp data object
- * @param {string} props.data.message - Message text
- * @param {string} props.data.businessName - Business name
  */
 export default function WhatsAppOutput({ data = {} }) {
-  const { t } = useI18n()
+  const { t } = useLanguage()
   const { message = '', businessName } = data
-  const displayBusinessName = businessName || t('output.yourBusiness')
+  const displayName = businessName || t('output.yourBusiness')
 
   return (
     <div className="p-6 md:p-8 space-y-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-          {t('output.whatsAppMessage')}
+          {t('output.whatsappMessage')}
         </h3>
-        <CopyButton text={message} label={t('output.whatsapp')} variant="primary" />
+        <CopyButton text={message} label={t('output.copyWhatsApp')} variant="primary" />
       </div>
 
       {/* WhatsApp Chat Preview */}
@@ -28,11 +24,11 @@ export default function WhatsAppOutput({ data = {} }) {
         <div className="flex items-center gap-3 pb-3 border-b border-gray-300">
           <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
             <span className="text-white font-semibold text-lg">
-              {displayBusinessName.charAt(0).toUpperCase()}
+              {businessName.charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{displayBusinessName}</p>
+            <p className="font-semibold text-gray-900">{displayName}</p>
             <p className="text-xs text-gray-500">{t('output.online')}</p>
           </div>
         </div>

@@ -1,21 +1,16 @@
-import { useI18n } from '../../i18n/I18nContext'
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * VoiceAdOutput - Display voice ad script with duration
- * @param {Object} props
- * @param {Object} props.data - Voice ad data object
- * @param {string} props.data.script - Voice ad script
- * @param {number} props.data.duration - Duration in seconds
- * @param {string} props.data.language - Language of the script
  */
 export default function VoiceAdOutput({ data = {} }) {
-  const { t } = useI18n()
+  const { t } = useLanguage()
   const { script = '', duration = 0, language = 'Hindi' } = data
 
   const formatDuration = (seconds) => {
     if (seconds < 60) {
-      return t('output.seconds', { count: seconds })
+      return `${seconds} ${t('output.seconds')}`
     }
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -28,7 +23,7 @@ export default function VoiceAdOutput({ data = {} }) {
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
           {t('output.voiceScript')}
         </h3>
-        <CopyButton text={script} label={t('output.voice')} variant="primary" />
+        <CopyButton text={script} label={t('output.copyVoice')} variant="primary" />
       </div>
 
       {/* Voice Ad Preview */}
@@ -52,7 +47,7 @@ export default function VoiceAdOutput({ data = {} }) {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-600">{t('output.language')}</p>
+              <p className="text-sm text-gray-600">{t('form.language')}</p>
               <p className="font-semibold text-gray-900">{language}</p>
             </div>
           </div>
@@ -75,7 +70,7 @@ export default function VoiceAdOutput({ data = {} }) {
         {/* Reading Guide */}
         <div className="mt-4 p-4 bg-purple-100 rounded-lg">
           <p className="text-sm text-purple-900">
-            {t('output.tipVoice')}
+            {t('output.voiceTip')}
           </p>
         </div>
       </div>

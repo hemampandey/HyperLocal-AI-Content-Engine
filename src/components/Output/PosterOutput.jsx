@@ -1,17 +1,11 @@
-import { useI18n } from '../../i18n/I18nContext'
 import CopyButton from '../Common/CopyButton'
+import { useLanguage } from '../../i18n'
 
 /**
  * PosterOutput - Display poster ad content
- * @param {Object} props
- * @param {Object} props.data - Poster data object
- * @param {string} props.data.headline - Poster headline
- * @param {string} props.data.description - Poster description
- * @param {string} props.data.offer - Special offer text
- * @param {string} props.data.imageUrl - Optional image URL
  */
 export default function PosterOutput({ data = {} }) {
-  const { t } = useI18n()
+  const { t } = useLanguage()
   const { headline = '', description = '', offer = '', imageUrl = null } = data
 
   const posterText = `${headline}\n\n${description}${offer ? `\n\n${offer}` : ''}`
@@ -22,7 +16,7 @@ export default function PosterOutput({ data = {} }) {
         <h3 className="text-xl md:text-2xl font-bold text-gray-900">
           {t('output.posterAd')}
         </h3>
-        <CopyButton text={posterText} label={t('output.poster')} variant="primary" />
+        <CopyButton text={posterText} label={t('output.copyPoster')} variant="primary" />
       </div>
 
       {/* Poster Preview */}
