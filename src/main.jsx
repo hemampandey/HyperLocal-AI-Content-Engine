@@ -7,6 +7,8 @@ import MainLayout from './layout/MainLayout'
 import App from './App.jsx'
 import AIAutomation from './pages/AIAutomation'
 import Placeholder from './pages/Placeholder'
+import Pricing from './pages/Pricing'
+import Support from './pages/Support'
 
 const router = createBrowserRouter([
   {
@@ -16,8 +18,8 @@ const router = createBrowserRouter([
       { index: true, element: <App /> },
       { path: 'create', element: <App /> },
       { path: 'automation', element: <AIAutomation /> },
-      { path: 'pricing', element: <Placeholder title="Pricing" /> },
-      { path: 'support', element: <Placeholder title="Support" /> },
+      { path: 'pricing', element: <Pricing/> },
+      { path: 'support', element: <Support /> },
     ],
   },
 ])
