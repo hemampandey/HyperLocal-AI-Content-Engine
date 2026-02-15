@@ -80,7 +80,15 @@
     "impressions": "ইম্প্রেশন",
     "clicks": "ক্লিক",
     "conversions": "রূপান্তর",
-    "apiResponse": "API প্রতিক্রিয়া"
+    "apiResponse": "API প্রতিক্রিয়া",
+    "feedbackQuestion": "Is this good?",
+    "feedbackLooksGood": "Looks Good",
+    "feedbackImprove": "Improve / Regenerate",
+    "feedbackPlaceholder": "Tell the AI what to improve (tone, language, length, offer, clarity, etc.)",
+    "feedbackVoice": "Voice Feedback",
+    "feedbackRegenerate": "Regenerate",
+    "feedbackCancel": "Cancel",
+    "feedbackRegenerating": "Regenerating..."
   },
   "output": {
     "posterAd": "পোস্টার বিজ্ঞাপন",

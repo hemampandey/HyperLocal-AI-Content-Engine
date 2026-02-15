@@ -221,6 +221,134 @@ function getKeywordsByCategory(category) {
 }
 
 /**
+ * Regenerate campaign content based on user feedback.
+ * Keeps the same campaign ID; returns updated adContent only.
+ * @param {Object} params
+ * @param {string} params.campaignId - Existing campaign ID (preserved)
+ * @param {string} params.previousOutputText - Serialized previous ad content for prompt
+ * @param {string} params.userFeedback - User's feedback text (or transcribed voice)
+ * @param {Object} params.context - Original campaign context
+ * @param {Object} params.existingResponse - Full existing API response (to preserve analytics, settings, etc.)
+ * @returns {Promise<Object>} Same shape as submitCampaign with updated adContent
+ */
+export const regenerateCampaign = async ({
+  campaignId,
+  previousOutputText,
+  userFeedback,
+  context,
+  existingResponse,
+}) => {
+  await delay(1500)
+
+  const formData = {
+    productName: context.productName,
+    productCategory: context.productCategory,
+    businessType: context.businessType || 'retail',
+    selectedCity: context.selectedCity,
+    selectedLanguage: context.selectedLanguage,
+    offer: context.offer,
+  }
+
+  // Generate new ad content; mock applies simple feedback-aware tweaks
+  const adContent = generateAdContentFromFeedback(
+    formData,
+    previousOutputText,
+    userFeedback
+  )
+
+  return {
+    success: true,
+    data: {
+      ...existingResponse.data,
+      campaign: {
+        ...existingResponse.data.campaign,
+        id: campaignId,
+      },
+      adContent: {
+        headline: adContent.headline,
+        description: adContent.description,
+        callToAction: adContent.callToAction,
+        keywords: adContent.keywords,
+        targetAudience: adContent.targetAudience,
+      },
+    },
+    message: 'Campaign content regenerated successfully',
+    timestamp: new Date().toISOString(),
+  }
+}
+
+/**
+ * Build the regeneration prompt per spec for use with a real AI backend.
+ */
+function buildRegenerationPrompt(previousOutputText, userFeedback, context) {
+  const platforms = [].concat(context.selectedPlatforms || []).join(', ') || 'All'
+  return `---
+You previously generated this hyperlocal ad campaign:
+
+<<<PREVIOUS_OUTPUT>>>
+${previousOutputText}
+<<<PREVIOUS_OUTPUT>>>
+
+Campaign context:
+- Product: ${context.productName}
+- City: ${context.selectedCity}
+- Language: ${context.selectedLanguage}
+- Category: ${context.productCategory}
+- Platforms: ${platforms}
+
+User feedback:
+<<<USER_FEEDBACK>>>
+${userFeedback || '(No specific feedback)'}
+<<<USER_FEEDBACK>>>
+
+Task:
+Regenerate the ad content by strictly applying the feedback.
+Do not change information that was not requested.
+Keep it suitable for local MSME advertising.
+---`
+}
+
+/**
+ * Generate ad content that incorporates user feedback (mock implementation).
+ * In production this would call an LLM with buildRegenerationPrompt().
+ */
+function generateAdContentFromFeedback(formData, _previousOutputText, userFeedback) {
+  const base = generateAdContent(formData)
+  const feedback = (userFeedback || '').toLowerCase().trim()
+  if (!feedback) return base
+
+  let headline = base.headline
+  let description = base.description
+  let cta = base.callToAction
+
+  if (feedback.includes('shorter') || feedback.includes('brief')) {
+    headline = headline.split(' - ')[0] || headline.slice(0, 50)
+    description = description.slice(0, 120) + (description.length > 120 ? '...' : '')
+  }
+  if (feedback.includes('longer') || feedback.includes('more detail')) {
+    description = description + ' Visit us today for the best experience.'
+  }
+  if (feedback.includes('formal') || feedback.includes('professional')) {
+    headline = headline.replace(/!$/, '.')
+    description = 'We are pleased to offer ' + description.toLowerCase()
+  }
+  if (feedback.includes('casual') || feedback.includes('friendly')) {
+    headline = headline + ' 🙂'
+    description = 'Hey! ' + description
+  }
+  if (feedback.includes('offer') || feedback.includes('discount')) {
+    description = description + ' Special offer inside!'
+  }
+
+  return {
+    ...base,
+    headline,
+    description,
+    callToAction: cta,
+  }
+}
+
+/**
  * Mock function to get campaign status
  */
 export const getCampaignStatus = async (campaignId) => {

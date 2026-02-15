@@ -80,7 +80,15 @@
     "impressions": "इंप्रेशन",
     "clicks": "क्लिक",
     "conversions": "रूपांतरण",
-    "apiResponse": "API प्रतिक्रिया"
+    "apiResponse": "API प्रतिक्रिया",
+    "feedbackQuestion": "Is this good?",
+    "feedbackLooksGood": "Looks Good",
+    "feedbackImprove": "Improve / Regenerate",
+    "feedbackPlaceholder": "Tell the AI what to improve (tone, language, length, offer, clarity, etc.)",
+    "feedbackVoice": "Voice Feedback",
+    "feedbackRegenerate": "Regenerate",
+    "feedbackCancel": "Cancel",
+    "feedbackRegenerating": "Regenerating..."
   },
   "output": {
     "posterAd": "पोस्टर विज्ञापन",

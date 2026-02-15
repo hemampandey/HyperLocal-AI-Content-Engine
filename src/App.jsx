@@ -1,6 +1,6 @@
 import './App.css'
 import { useState, useEffect } from 'react'
-import { submitCampaign } from './services/api'
+import { submitCampaign, regenerateCampaign } from './services/api'
 import { useLanguage } from './i18n'
 
 // Landing Components
@@ -46,6 +46,10 @@ function App() {
   const [outputTab, setOutputTab] = useState(0) // For output tabs (Poster, Instagram, etc.)
   const [showResults, setShowResults] = useState(false)
   const [apiResponse, setApiResponse] = useState(null)
+  // Feedback & regeneration state machine: idle | generated | feedback | regenerating | finalized
+  const [feedbackState, setFeedbackState] = useState('idle')
+  const [feedbackText, setFeedbackText] = useState('')
+  const [isRecording, setIsRecording] = useState(false)
 
   const loadingSteps = [
     { textKey: 'loader.step1', duration: 2000 },
@@ -54,15 +58,34 @@ function App() {
     { textKey: 'loader.step4', duration: 1500 },
   ]
 
+  // When results are shown with content, show feedback section (generated state)
+  useEffect(() => {
+    if (showResults && apiResponse?.data?.adContent) {
+      setFeedbackState('generated')
+    }
+  }, [showResults, apiResponse])
+
   // Validate required fields
   const isFormValid = () => {
-    return (
-      productName.trim() !== '' &&
-      selectedCity !== '' &&
-      productCategory !== ''
-    )
-  }
+  return (
+    typeof productName === 'string' &&
+    productName.trim().length > 0 &&
 
+    typeof selectedCity === 'string' &&
+    selectedCity.trim().length > 0 &&
+
+    typeof productCategory === 'string' &&
+    productCategory.trim().length > 0
+  )
+}
+
+  console.table({
+    productName,
+    selectedCity,
+    productCategory,
+    isLoading,
+    isFormValid: isFormValid()
+  })
   // Generate formatted form summary
   const generateFormSummary = () => {
     const categoryLabels = {
@@ -184,6 +207,77 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
 
   const outputData = getOutputData()
 
+  // Serialize current output for regeneration prompt (preserve context)
+  const serializeOutputForPrompt = (data) => {
+    if (!data) return ''
+    const lines = [
+      '[Poster]',
+      `Headline: ${data.poster?.headline || ''}`,
+      `Description: ${data.poster?.description || ''}`,
+      data.poster?.offer ? `Offer: ${data.poster.offer}` : '',
+      '[Instagram]',
+      data.instagram?.caption || '',
+      data.instagram?.hashtags?.length ? `Hashtags: ${data.instagram.hashtags.join(', ')}` : '',
+      '[WhatsApp]',
+      data.whatsapp?.message || '',
+      '[Voice Script]',
+      data.voice?.script || '',
+    ]
+    return lines.filter(Boolean).join('\n')
+  }
+
+  const handleLooksGood = () => {
+    setFeedbackState('finalized')
+  }
+
+  const handleImproveClick = () => {
+    setFeedbackState('feedback')
+    setFeedbackText('')
+  }
+
+  const handleFeedbackCancel = () => {
+    setFeedbackState('generated')
+    setFeedbackText('')
+  }
+
+  const handleVoiceFeedback = () => {
+    if (isRecording) {
+      setIsRecording(false)
+      setFeedbackText((prev) => prev + (prev ? ' ' : '') + '[Mock transcription: Make the tone more friendly and keep it short.]')
+    } else {
+      setIsRecording(true)
+    }
+  }
+
+  const handleRegenerate = async () => {
+    if (!apiResponse?.data?.campaign?.id || !outputData) return
+    setFeedbackState('regenerating')
+    const previousOutputText = serializeOutputForPrompt(outputData)
+    try {
+      const result = await regenerateCampaign({
+        campaignId: apiResponse.data.campaign.id,
+        previousOutputText,
+        userFeedback: feedbackText.trim() || 'Improve the copy while keeping the same message.',
+        context: {
+          productName,
+          selectedCity,
+          selectedLanguage,
+          productCategory,
+          selectedPlatforms,
+          offer,
+          businessType,
+        },
+        existingResponse: apiResponse,
+      })
+      setApiResponse(result)
+      setFeedbackText('')
+      setFeedbackState('generated')
+    } catch (err) {
+      console.error('Regeneration failed:', err)
+      setFeedbackState('feedback')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50">
       {/* Hero Section */}
@@ -283,7 +377,11 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                     variant="primary"
                   />
                   <button
-                    onClick={() => setShowResults(false)}
+                    onClick={() => {
+                      setShowResults(false)
+                      setFeedbackState('idle')
+                      setFeedbackText('')
+                    }}
                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
                   >
                     {t('results.close')}
@@ -310,6 +408,88 @@ Generated on: ${new Date().toLocaleDateString('en-IN', {
                 {outputTab === 2 && <WhatsAppOutput data={outputData.whatsapp} />}
                 {outputTab === 3 && <VoiceAdOutput data={outputData.voice} />}
               </div>
+
+              {/* Feedback: Is this good? + Improve / Regenerate */}
+              {(feedbackState === 'generated' || feedbackState === 'feedback' || feedbackState === 'regenerating') && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  {feedbackState === 'regenerating' && (
+                    <p className="text-indigo-600 font-medium mb-4 flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      {t('results.feedbackRegenerating')}
+                    </p>
+                  )}
+                  {feedbackState === 'generated' && (
+                    <>
+                      <p className="text-gray-700 font-medium mb-3">{t('results.feedbackQuestion')}</p>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={handleLooksGood}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          <span aria-hidden></span>
+                          {t('results.feedbackLooksGood')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleImproveClick}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
+                        >
+                          <span aria-hidden></span>
+                          {t('results.feedbackImprove')}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {feedbackState === 'feedback' && (
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <label className="block">
+                        <span className="sr-only">{t('results.feedbackPlaceholder')}</span>
+                        <textarea
+                          value={feedbackText}
+                          onChange={(e) => setFeedbackText(e.target.value)}
+                          placeholder={t('results.feedbackPlaceholder')}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500"
+                        />
+                      </label>
+                      <div className="flex flex-wrap gap-3 items-center">
+                        <button
+                          type="button"
+                          onClick={handleVoiceFeedback}
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${isRecording ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}
+                        >
+                          {isRecording ? (
+                            <>
+                              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                              Recording… Click to stop
+                            </>
+                          ) : (
+                            <>🎤 {t('results.feedbackVoice')}</>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleRegenerate}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          🔁 {t('results.feedbackRegenerate')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleFeedbackCancel}
+                          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
+                        >
+                          {t('results.feedbackCancel')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* API Response Summary */}
               {apiResponse && (
