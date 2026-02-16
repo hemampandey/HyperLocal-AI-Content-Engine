@@ -9,6 +9,7 @@ import AIAutomation from './pages/AIAutomation'
 import Placeholder from './pages/Placeholder'
 import Pricing from './pages/Pricing'
 import Support from './pages/Support'
+import CreateAd from './pages/CreateAd'
 
 const router = createBrowserRouter([
   {
@@ -16,10 +17,11 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <App /> },
-      { path: 'create', element: <App /> },
+      { path: 'create', element: <CreateAd /> },
       { path: 'automation', element: <AIAutomation /> },
       { path: 'pricing', element: <Pricing/> },
       { path: 'support', element: <Support /> },
+      { path: 'create-ad', element: <CreateAd /> },
     ],
   },
 ])
